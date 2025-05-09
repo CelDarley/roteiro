@@ -1,0 +1,1161 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Vendas</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link href="../css/thalamus.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+  <!-- Adicionando Quill.js -->
+  <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+  <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+  <style>
+    .container {
+      width: 100% !important;
+      max-width: none !important;
+    }
+
+    .ql-editor {
+      min-height: 100px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    .ql-toolbar.ql-snow {
+      border: 1px solid #ccc;
+      border-radius: 4px 4px 0 0;
+    }
+    .ql-container.ql-snow {
+      border: 1px solid #ccc;
+      border-radius: 0 0 4px 4px;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      overflow-y: auto;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      width: 100%;
+      max-width: none;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: #666;
+      z-index: 10000;
+      padding: 5px 10px;
+      background-color: rgba(255, 255, 255, 0.9);
+      border-radius: 4px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .modal-close:hover {
+      color: #333;
+      background-color: rgba(255, 255, 255, 1);
+    }
+
+    .tabela {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+
+    .tabela th,
+    .tabela td {
+      padding: 8px;
+      text-align: left;
+      white-space: normal;
+      word-wrap: break-word;
+      max-width: 150px;
+    }
+
+    .tabela th {
+      background-color: var(--cor-primaria-fraca);
+      color: var(--cor-fonte-forte);
+    }
+
+    .tabela tr:hover {
+      background-color: var(--cor-primaria-fraca);
+    }
+  </style>
+</head>
+<body>
+  <div id="vendas">
+    <section>
+      <div class="titulo">
+        <div class="margem container">
+          <div class="m-icone direita">
+            <div class="pesquisa">
+              <input type="text" placeholder="Pesquise aqui">
+              <a class="icone-pesquisa" title="Pesquise"></a>
+            </div>
+          </div>
+          <h2>Proposta Comercial</h2>
+        </div>
+      </div>
+      <div class="margem container">
+        <br>
+        <div class="bloco margem">
+          <div class="alinha-v" style="display: flex; justify-content: space-between;">
+            <div title="Clique aqui para adicionar"></div>
+          </div>
+          <br>
+          <button type="button" class="v-btn v-btn--elevated v-btn--icon v-theme--light v-btn--density-default v-btn--size-default v-btn--variant-elevated acao-secundaria" @click="abrirModalNovaProposta">
+            <span class="v-btn_overlay"></span>
+            <span class="v-btnunderlay"></span>
+            <span class="v-btn_content" data-no-activator="">
+              <i class="mdi-plus mdi v-icon notranslate v-theme--light v-icon--size-default" aria-hidden="true"></i>
+            </span><span>Nova proposta</span>
+          </button><br><br>
+                   <table class="tabela">
+            <thead>
+              <tr>
+                <th scope="col" style="white-space: nowrap;">Nº Proposta Comercial</th>
+                <th scope="col" style="white-space: nowrap;">Nº Oportunidade</th>
+                <th scope="col" style="white-space: nowrap;">Cliente</th>
+                <th scope="col" style="white-space: nowrap;">Data de criação</th>
+                <th scope="col" style="white-space: nowrap;">Status</th>
+                <th scope="col" style="white-space: nowrap;">Data de aprovação</th>
+                <th scope="col" style="white-space: nowrap;">Previsão de entrega</th>
+                <th scope="col" style="white-space: nowrap;">Nº NF</th>
+                <th scope="col" style="white-space: nowrap;">Data de emissão NF</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="proposta in propostas" :key="proposta.numero" @click="abrirModalDetalhes(proposta)" style="cursor: pointer;">
+                <td>{{ proposta.numero }}</td>
+                <td>{{ proposta.oportunidade }}</td>
+                <td>{{ proposta.cliente }}</td>
+                <td>{{ proposta.dataCriacao }}</td>
+                <td>{{ proposta.status }}</td>
+                <td>{{ proposta.dataAprovacao }}</td>
+                <td>{{ proposta.previsaoEntrega }}</td>
+                <td>{{ proposta.numeroNF }}</td>
+                <td>{{ proposta.dataEmissaoNF }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Modal Detalhes Proposta -->
+    <div v-if="showModalDetalhes" class="modal-overlay" @click.self="fecharModalDetalhes">
+      <div class="modal-content" style="width: 90%; max-width: 1200px;">
+        <button class="modal-close" @click="fecharModalDetalhes">&times;</button>
+        <div class="bloco margem">
+          <div class="margem grid-2">
+            <span><h3>Nº da proposta comercial: {{ propostaSelecionada.numero }}</h3></span>
+          </div>
+          <fieldset data-v-63b48b03="" class="margem grid-6" style="display: flex; flex-wrap: wrap; gap: 20px; align-items: center;">
+            <div data-v-63b48b03="" style="flex: 1; min-width: 200px;">
+              <h4>Proposta comercial</h4> <span>PC2504551</span>
+            </div>
+            <div data-v-63b48b03="" style="flex: 1; min-width: 200px;">
+              <h4>Data de criação</h4> <span>09/04/2025</span>
+            </div>
+            <div data-v-63b48b03="" style="flex: 1; min-width: 200px;">
+              <h4>CNPJ</h4> <span>48.254.566/0001-55</span>
+            </div>
+            <div data-v-63b48b03="" style="flex: 1; min-width: 200px;">
+              <h4>Razão Social</h4> <span>Solinfitec</span>
+            </div>
+            <div data-v-63b48b03="" style="flex: 1; min-width: 200px;">
+              <h4>Aprovação Cliente</h4> <span>09/04/2025</span>
+            </div>
+            <div data-v-63b48b03="" style="flex: 1; min-width: 200px;">
+              <h4>Previsão de entrega</h4> <span><input data-v-63b48b03="" type="date"></span>
+            </div>
+          </fieldset>
+
+          <table class="tabela">
+            <thead>
+              <tr>
+                <th scope="col" style="white-space: nowrap;">Cod. Produto</th>
+                <th scope="col" style="white-space: nowrap;">Descrição</th>
+                <th scope="col" style="white-space: nowrap;">Previsão de entrega</th>
+                <th scope="col" style="white-space: nowrap;">Quantidade</th>
+                <th style="text-align: center;">Estoque</th>
+                <th style="text-align: center;">Observação do produto</th>
+                <th style="text-align: center;">Link Anexo</th>
+                <th style="text-align: center;">Reservado expedição</th>
+                <th style="text-align: center;">Quant. a Produzir</th>
+                <th scope="col" style="white-space: nowrap;">Nr de Op</th>
+                <th style="text-align: center;">Previsão de conclusão</th>
+                <th style="text-align: center; width: 50px;">Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="cursor: pointer;">
+                <td>CST040003</td>
+                <td>Case X115 magnética</td>
+                <td>10/04/2025</td>
+                <td>1000</td>
+                <td>500</td>
+                <td>nova cor</td>
+                <td>www.uyhgt.com</td>
+                <td style="background-color: rgba(0, 0, 255, 0.03); border: 1px solid rgba(0, 0, 255, 0.03);"><input type="text" value="500"></td>
+                <td style="background-color: rgba(0, 0, 255, 0.03); border: 1px solid rgba(0, 0, 255, 0.04);"><input type="text" value="500"></td>
+                <td style="background-color: rgba(0, 0, 255, 0.03); border: 1px solid rgba(0, 0, 255, 0.03);">000150</td>
+                <td style="background-color: rgba(0, 0, 255, 0.03); border: 1px solid rgba(0, 0, 255, 0.03);">10/04/2025</td>
+                <td style="background-color: rgba(0, 0, 255, 0.03); border: 1px solid rgba(20, 0, 255, 0.03);">10/04/2025</td>
+                <td style="text-align: center;">
+                  <div class="tags"><a @click="removerProduto(index)">X</a></div>
+                </td>
+              </tr>
+              <tr style="cursor: pointer;">
+                <td>PLUG040002</td>
+                <td scope="col">Plug Magnético C</td>
+                <td>10/04/2025</td>
+                <td>1500</td>
+                <td>1000</td>
+                <td>-</td>
+                <td>-</td>
+                <td style="background-color: rgba(0, 0, 255, 0.03); border: 1px solid rgba(0, 0, 255, 0.03);"><input type="text" value="1000"></td>
+                <td style="background-color: rgba(0, 0, 255, 0.03); border: 1px solid rgba(0, 0, 255, 0.03);"><input type="text" value="500"></td>
+                <td style="background-color: rgba(0, 0, 255, 0.03); border: 1px solid rgba(0, 0, 255, 0.03);"></td>
+                <td style="background-color: rgba(0, 0, 255, 0.03); border: 1px solid rgba(0, 0, 255, 0.03);"></td>
+                <td style="background-color: rgba(0, 0, 255, 0.03); border: 1px solid rgba(0, 0, 255, 0.03);"></td>
+                <td style="text-align: center;">
+                  <div class="tags"><a @click="removerProduto(index)">X</a></div>
+                </td>
+              </tr>
+              <tr style="cursor: pointer;">
+                <td>BRC040003</td>
+                <td>Braço Curto B PT</td>
+                <td>10/04/2025</td>
+                <td>250</td>
+                <td>0</td>
+                <td>-</td>
+                <td>-</td>
+                <td style="background-color: rgba(0, 0, 255, 0.03); border: 1px solid rgba(0, 0, 255, 0.05);"><input type="text" value="0"></td>
+                <td style="background-color: rgba(0, 0, 255, 0.03); border: 1px solid rgba(0, 0, 255, 0.05);"><input type="text" value="250"></td>
+                <td style="background-color: rgba(0, 0, 255, 0.03); border: 1px solid rgba(0, 0, 255, 0.03);">000151</td>
+                <td style="background-color: rgba(0, 0, 255, 0.03); border: 1px solid rgba(0, 0, 255, 0.03);">11/04/2025</td>
+                <td style="background-color: rgba(0, 0, 255, 0.03); border: 1px solid rgba(0, 0, 255, 0.03);">11/04/2025</td>
+                <td style="text-align: center;">
+                  <div class="tags"><a @click="removerProduto(index)">X</a></div>
+                </td>
+              </tr>
+              <tr style="cursor: pointer;">
+                <td>PC 50060</td>
+                <td>Case X115 magnética</td>
+                <td>10/04/2025</td>
+                <td>750</td>
+                <td>500</td>
+                <td>-</td>
+                <td>-</td>
+                <td style="background-color: rgba(0, 0, 255, 0.03); border: 1px solid rgba(0, 0, 255, 0.05);"><input type="text" value="850"></td>
+                <td style="background-color: rgba(0, 0, 255, 0.03); border: 1px solid rgba(0, 0, 255, 0.05);"><input type="text" value="200"></td>
+                <td style="background-color: rgba(0, 0, 255, 0.03); border: 1px solid rgba(0, 0, 255, 0.03);">000152</td>
+                <td style="background-color: rgba(0, 0, 255, 0.03); border: 1px solid rgba(0, 0, 255, 0.03);">11/04/2025</td>
+                <td style="background-color: rgba(0, 0, 255, 0.03); border: 1px solid rgba(0, 0, 255, 0.03);">11/04/2025</td>
+                <td style="text-align: center;">
+                  <div class="tags"><a @click="removerProduto(index)">X</a></div>
+                </td>
+              </tr>
+              <tr style="cursor: pointer;">
+                <td>PC 50064</td>
+                <td>OPT0921</td>
+                <td>10/04/2025</td>
+                <td>50</td>
+                <td>20</td>
+                <td>-</td>
+                <td>-</td>
+                <td style="background-color: rgba(0, 0, 255, 0.03); border: 1px solid rgba(0, 0, 255, 0.05);"><input type="text" value="10"></td>
+                <td style="background-color: rgba(0, 0, 255, 0.03); border: 1px solid rgba(0, 0, 255, 0.05);"><input type="text" value="250"></td>
+                <td style="background-color: rgba(0, 0, 255, 0.03); border: 1px solid rgba(0, 0, 255, 0.03);">000153</td>
+                <td style="background-color: rgba(0, 0, 255, 0.03); border: 1px solid rgba(0, 0, 255, 0.03);">11/04/2025</td>
+                <td style="background-color: rgba(0, 0, 255, 0.03); border: 1px solid rgba(0, 0, 255, 0.03);">11/04/2025</td>
+                <td style="text-align: center;">
+                  <div class="tags"><a @click="removerProduto(index)">X</a></div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <fieldset>
+            <div style="display: grid; grid-template-columns: 30% 70%;">
+              <div>
+                <label>Data da Atualização</label>
+                <input type="date" v-model="propostaSelecionada.dataAtualizacao">
+              </div>
+              <div style="margin-left:40px">
+                <label>Observação</label>
+                <textarea v-model="propostaSelecionada.observacao"></textarea>
+              </div>
+            </div>
+          </fieldset>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Nova Proposta -->
+    <div v-if="showModalNovaProposta" class="modal-overlay" @click.self="fecharModalNovaProposta">
+      <div class="modal-content" style="width: 80%; max-width: 1200px; margin: 0 auto;">
+        <button class="modal-close" @click="fecharModalNovaProposta">&times;</button>
+        <div class="bloco margem">
+          <header class="alinha-centro" style="color: var(--cor-fonte);">
+            <h2>PROPOSTA COMERCIAL</h2>
+          </header>
+
+          <fieldset class="margem grid-2">
+            <div>
+              <label>Nº da proposta comercial</label>
+              <input type="text" v-model="novaProposta.numero">
+            </div>
+          </fieldset>
+
+          <fieldset class="margem grid-6" style="display: flex; flex-wrap: wrap; gap: 20px; align-items: center; justify-content: space-between;">
+            <div style="flex: 1; min-width: 200px; max-width: calc(16.666% - 20px); display: flex; flex-direction: column;">
+              <h4>Proposta comercial</h4> <span>{{ novaProposta.numero }}</span>
+            </div>
+            <div style="flex: 1; min-width: 200px; max-width: calc(16.666% - 20px); display: flex; flex-direction: column;">
+              <h4>Data de criação</h4> <span>{{ novaProposta.dataCriacao }}</span>
+            </div>
+            <div style="flex: 1; min-width: 200px; max-width: calc(16.666% - 20px); display: flex; flex-direction: column;">
+              <h4>CNPJ</h4> <span>{{ novaProposta.cnpj }}</span>
+            </div>
+            <div style="flex: 1; min-width: 200px; max-width: calc(16.666% - 20px); display: flex; flex-direction: column;">
+              <h4>Razão Social</h4> <span>{{ novaProposta.cliente }}</span>
+            </div>
+            <div style="flex: 1; min-width: 200px; max-width: calc(16.666% - 20px); display: flex; flex-direction: column;">
+              <h4>Aprovação Cliente</h4> <span>{{ novaProposta.dataAprovacao }}</span>
+            </div>
+            <div style="flex: 1; min-width: 200px; max-width: calc(16.666% - 20px); display: flex; flex-direction: column;">
+              <button type="button" class="v-btn v-btn--elevated v-btn--icon v-theme--light v-btn--density-default v-btn--size-default v-btn--variant-elevated acao-secundaria" @click="adicionarProduto">
+                <span class="v-btn_overlay"></span> <span class="v-btnunderlay"></span> <span data-no-activator="" class="v-btn_content">
+                  <i aria-hidden="true" class="mdi-plus mdi v-icon notranslate v-theme--light v-icon--size-default"></i></span><span>Adicionar Produto</span></button>
+            </div>
+            <div style="flex: 1; min-width: 200px; max-width: calc(16.666% - 20px); display: flex; flex-direction: column;">
+              <h4>Previsão de entrega</h4> <span><input type="date" v-model="novaProposta.previsaoEntrega" style="width: 100%;"></span>
+            </div>
+          </fieldset>
+
+          <table class="tabela">
+            <thead>
+              <tr>
+                <th scope="col" style="white-space: nowrap;">Cod. Produto</th>
+                <th scope="col" style="white-space: nowrap;">Descrição</th>
+                <th scope="col" style="white-space: nowrap;">Prev entr.</th>
+                <th scope="col" style="white-space: nowrap;">Quant</th>
+                <th style="text-align: center;">Estoque</th>
+                <th style="text-align: center;">Observação do produto</th>
+                <th style="text-align: center;">Link Anexo</th>
+                <th style="text-align: center; background-color: rgba(0, 0, 255, 0.03); border: 1px solid rgba(0, 0, 255, 0.05);">Reservado expedição</th>
+                <th style="text-align: center; background-color: rgba(0, 0, 255, 0.03); border: 1px solid rgba(0, 0, 255, 0.05);">Quant. a Produzir</th>
+                <th scope="col" style="white-space: nowrap; background-color: rgba(0, 0, 255, 0.03); border: 1px solid rgba(255, 0, 0, 0.05);">Nr de Op</th>
+                <th style="text-align: center; background-color: rgba(0, 0, 255, 0.03); border: 1px solid rgba(255, 0, 0, 0.05);">Previsão de conclusão</th>
+                <th style="text-align: center; width: 50px;">Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-if="editandoProduto" style="background-color: #f8f9fa;">
+                <td>
+                  <input type="text" v-model="novoProduto.codigo" placeholder="CST040003 - Case X115 magnética" @input="atualizarDescricaoProduto">
+                  <span v-if="novoProduto.descricao" style="display: block; margin-top: 5px; color: #666;">{{ novoProduto.descricao }}</span>
+                </td>
+                <td><input type="text" v-model="novoProduto.descricao" readonly></td>
+                <td><input type="date" v-model="novoProduto.previsaoEntrega"></td>
+                <td><input type="number" v-model="novoProduto.quantidade" style="width: 80px;"></td>
+                <td><input type="text" v-model="novoProduto.estoque" style="width: 80px;"></td>
+                <td><input type="text" v-model="novoProduto.observacao"></td>
+                <td><input type="text" v-model="novoProduto.linkAnexo"></td>
+                <td style="background-color: rgba(0, 0, 255, 0.03); border: 1px solid rgba(0, 0, 255, 0.03);">
+                  <input type="text" v-model="novoProduto.reservadoExpedicao" style="width: 80px;">
+                </td>
+                <td style="background-color: rgba(0, 0, 255, 0.03); border: 1px solid rgba(0, 0, 255, 0.03);">
+                  <input type="text" v-model="novoProduto.quantidadeProduzir" style="width: 80px;">
+                </td>
+                <td style="background-color: rgba(0, 0, 255, 0.03); border: 1px solid rgba(255, 0, 0, 0.05);">
+                  <input type="text" v-model="novoProduto.numeroOP" style="width: 80px;">
+                </td>
+                <td style="background-color: rgba(0, 0, 255, 0.03); border: 1px solid rgba(255, 0, 0, 0.05);">
+                  <input type="date" v-model="novoProduto.previsaoConclusao">
+                </td>
+                <td style="text-align: center;">
+                  <div class="tags"><a @click="removerProduto(index)">X</a></div>
+                </td>
+              </tr>
+              <tr v-for="(produto, index) in novaProposta.produtos" :key="index" style="cursor: pointer;">
+                <td>{{ produto.codigo }}</td>
+                <td>{{ produto.descricao }}</td>
+                <td>{{ produto.previsaoEntrega }}</td>
+                <td>{{ produto.quantidade }}</td>
+                <td>{{ produto.estoque }}</td>
+                <td>{{ produto.observacao }}</td>
+                <td>{{ produto.linkAnexo }}</td>
+                <td style="background-color: rgba(0, 0, 255, 0.03); border: 1px solid rgba(0, 0, 255, 0.03);">
+                  <input type="text" v-model="produto.reservadoExpedicao" class="form-control">
+                </td>
+                <td style="background-color: rgba(0, 0, 255, 0.03); border: 1px solid rgba(0, 0, 255, 0.03);">
+                  <input type="text" v-model="produto.quantidadeProduzir" class="form-control">
+                </td>
+                <td style="background-color: rgba(255, 0, 0, 0.03); border: 1px solid rgba(255, 0, 0, 0.05);">{{ produto.numeroOP }}</td>
+                <td style="background-color: rgba(255, 0, 0, 0.03); border: 1px solid rgba(255, 0, 0, 0.05);">{{ produto.previsaoConclusao }}</td>
+                <td style="text-align: center;">
+                  <div class="tags"><a @click="removerProduto(index)">X</a></div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="tags">
+            <a class="ativo" @click="adicionarObservacao">Adicionar Observação sss</a>
+          </div>
+          <br>
+
+          <fieldset v-for="(obs, index) in novaProposta.observacoes" :key="index">
+            <div style="display: grid; grid-template-columns: 30% 70%;">
+              <div>
+                <label>Data da Atualização</label>
+                <input type="date" v-model="obs.dataAtualizacao">
+              </div>
+              <div style="margin-left:40px">
+                <label>Observação</label>
+                <textarea v-model="obs.observacao"></textarea>
+              </div>
+            </div>
+          </fieldset>
+          <br>
+
+          <table data-v-399ff5f7="" class="tabela" id="3676">
+            <tbody data-v-399ff5f7="">
+              <tr data-v-399ff5f7="">
+                <th data-v-399ff5f7="">Nº</th>
+                <th data-v-399ff5f7="">Descrição</th>
+                <th data-v-399ff5f7="">H.P.</th>
+                <th data-v-399ff5f7="">Responsável</th>
+                <th data-v-399ff5f7="">Inicio Previsto</th>
+                <th data-v-399ff5f7="">Fim Previsto</th>
+                <th data-v-399ff5f7="">Status</th>
+                
+              </tr>
+              <tr data-v-399ff5f7="">
+                <td data-v-399ff5f7="">Tarefa 9</td>
+                <td data-v-399ff5f7="" style="min-width: 14rem; max-width: 14rem; justify-content: center;">
+                  <input data-v-399ff5f7="" type="text" title="teste de tarefa" style="width: 100%; overflow: hidden; text-overflow: ellipsis; border: none;">
+                  <input data-v-399ff5f7="" type="text" title="teste de tarefa" style="width: 100%; overflow: hidden; text-overflow: ellipsis; border: none;">
+                </td>
+                <td data-v-399ff5f7="">
+                  <select data-v-399ff5f7="" class="HP" style="width: 2.5rem; height: 2.5rem; text-align: center; border-radius: 50%; padding: 0px; opacity: 1;">
+                    <option hidden="" data-v-399ff5f7="">0</option>
+                    <option data-v-399ff5f7="">1</option>
+                    <option data-v-399ff5f7="">2</option>
+                    <option data-v-399ff5f7="">3</option>
+                    <option data-v-399ff5f7="">5</option>
+                    <option data-v-399ff5f7="">8</option>
+                    <option data-v-399ff5f7="">13</option>
+                    <option data-v-399ff5f7="">21</option>
+                    <option data-v-399ff5f7="">34</option>
+                    <option data-v-399ff5f7="">55</option>
+                    <option data-v-399ff5f7="">89</option>
+                    <option data-v-399ff5f7="">144</option>
+                    <option data-v-399ff5f7="">233</option>
+                  </select>
+                </td>
+                <td data-v-399ff5f7="">
+                  <select data-v-399ff5f7="">
+                    <option data-v-399ff5f7="" hidden=""></option>
+                    <option data-v-399ff5f7="" value="7">Darley Wilson Dias</option>
+                    <option data-v-399ff5f7="" value="46">Paulo Rubens Salerno Del Menezzi Vicari</option>
+                    <option data-v-399ff5f7="" value="3">Mariana Mozzer Arantes</option>
+                    <option data-v-399ff5f7="" value="5">Raul Daniel Dias</option>
+                  </select>
+                </td>
+                <td data-v-399ff5f7="">
+                  <input data-v-399ff5f7="" type="date" style="background-color: transparent; cursor: pointer; width: 7rem; text-align: left; padding-inline: 0rem; border: none; opacity: 1;">
+                </td>
+                <td data-v-399ff5f7="">
+                  <input data-v-399ff5f7="" type="date" style="background-color: transparent; cursor: pointer; width: 7rem; text-align: left; padding-inline: 0rem; border: none; opacity: 1;">
+                </td>
+                <td data-v-399ff5f7="" style="padding: 0px;">
+                  <div data-v-399ff5f7="" style="display: flex; justify-content: center;">
+                    <div data-v-399ff5f7="" style="position: relative;">
+                      <div data-v-399ff5f7="" class="v-progress-linear v-progress-linear--active v-theme--light v-locale--is-ltr" role="progressbar" aria-hidden="false" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100" style="top: 0px; height: 2rem; --v-progress-linear-height: 4px; border: 1px solid var(--cor-fonte-fraca); border-radius: 25px; width: 12rem;">
+                        <div class="v-progress-linear__background" style="background-color: var(--cor-alerta);"></div>
+                        <div class="v-progress-linear__buffer" style="background-color: var(--cor-alerta); width: 0%;"></div>
+                        <div class="v-progress-linear__determinate" style="background-color: var(--cor-alerta); width: 100%;"></div>
+                      </div>
+                      <select data-v-399ff5f7="" title="Pendente" style="color: black; opacity: 1; border: none; padding-left: 0.5rem; position: absolute; top: 0px; left: 0rem; outline: none; border-radius: 25px; height: 2rem; width: 12rem; text-align: center; background-color: transparent; padding-top: 0rem; padding-bottom: 0rem;">
+                        <option data-v-399ff5f7="" hidden="" value=""></option>
+                        <option data-v-399ff5f7="" value="Pendente" style="color: rgb(255, 145, 0);"> A iniciar</option>
+                        <option data-v-399ff5f7="" value="Em andamento" style="color: rgb(0, 47, 255);"> Em andamento 0%</option>
+                        <option data-v-399ff5f7="" style="color: rgb(0, 47, 255);"> Em andamento 25% </option>
+                        <option data-v-399ff5f7="" style="color: rgb(0, 47, 255);"> Em andamento 50% </option>
+                        <option data-v-399ff5f7="" style="color: rgb(0, 47, 255);"> Em andamento 75% </option>
+                        <option data-v-399ff5f7="" style="color: rgb(0, 192, 0);"> Concluído </option>
+                      </select>
+                    </div>
+                  </div>
+                </td>
+     
+
+              </tr>
+              <tr data-v-399ff5f7="">
+                <td data-v-399ff5f7="">Tarefa 9</td>
+                <td data-v-399ff5f7="" style="min-width: 14rem; max-width: 14rem; justify-content: center;">
+                  <input data-v-399ff5f7="" type="text" title="teste de tarefa" style="width: 100%; overflow: hidden; text-overflow: ellipsis; border: none;">
+                  <input data-v-399ff5f7="" type="text" title="teste de tarefa" style="width: 100%; overflow: hidden; text-overflow: ellipsis; border: none;">
+                </td>
+                <td data-v-399ff5f7="">
+                  <select data-v-399ff5f7="" class="HP" style="width: 2.5rem; height: 2.5rem; text-align: center; border-radius: 50%; padding: 0px; opacity: 1;">
+                    <option hidden="" data-v-399ff5f7="">0</option>
+                    <option data-v-399ff5f7="">1</option>
+                    <option data-v-399ff5f7="">2</option>
+                    <option data-v-399ff5f7="">3</option>
+                    <option data-v-399ff5f7="">5</option>
+                    <option data-v-399ff5f7="">8</option>
+                    <option data-v-399ff5f7="">13</option>
+                    <option data-v-399ff5f7="">21</option>
+                    <option data-v-399ff5f7="">34</option>
+                    <option data-v-399ff5f7="">55</option>
+                    <option data-v-399ff5f7="">89</option>
+                    <option data-v-399ff5f7="">144</option>
+                    <option data-v-399ff5f7="">233</option>
+                  </select>
+                </td>
+                <td data-v-399ff5f7="">
+                  <select data-v-399ff5f7="">
+                    <option data-v-399ff5f7="" hidden=""></option>
+                    <option data-v-399ff5f7="" value="7">Darley Wilson Dias</option>
+                    <option data-v-399ff5f7="" value="46">Paulo Rubens Salerno Del Menezzi Vicari</option>
+                    <option data-v-399ff5f7="" value="3">Mariana Mozzer Arantes</option>
+                    <option data-v-399ff5f7="" value="5">Raul Daniel Dias</option>
+                  </select>
+                </td>
+                <td data-v-399ff5f7="">
+                  <input data-v-399ff5f7="" type="date" style="background-color: transparent; cursor: pointer; width: 7rem; text-align: left; padding-inline: 0rem; border: none; opacity: 1;">
+                </td>
+                <td data-v-399ff5f7="">
+                  <input data-v-399ff5f7="" type="date" style="background-color: transparent; cursor: pointer; width: 7rem; text-align: left; padding-inline: 0rem; border: none; opacity: 1;">
+                </td>
+                <td data-v-399ff5f7="" style="padding: 0px;">
+                  <div data-v-399ff5f7="" style="display: flex; justify-content: center;">
+                    <div data-v-399ff5f7="" style="position: relative;">
+                      <div data-v-399ff5f7="" class="v-progress-linear v-progress-linear--active v-theme--light v-locale--is-ltr" role="progressbar" aria-hidden="false" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100" style="top: 0px; height: 2rem; --v-progress-linear-height: 4px; border: 1px solid var(--cor-fonte-fraca); border-radius: 25px; width: 12rem;">
+                        <div class="v-progress-linear__background" style="background-color: var(--cor-alerta);"></div>
+                        <div class="v-progress-linear__buffer" style="background-color: var(--cor-alerta); width: 0%;"></div>
+                        <div class="v-progress-linear__determinate" style="background-color: var(--cor-alerta); width: 100%;"></div>
+                      </div>
+                      <select data-v-399ff5f7="" title="Pendente" style="color: black; opacity: 1; border: none; padding-left: 0.5rem; position: absolute; top: 0px; left: 0rem; outline: none; border-radius: 25px; height: 2rem; width: 12rem; text-align: center; background-color: transparent; padding-top: 0rem; padding-bottom: 0rem;">
+                        <option data-v-399ff5f7="" hidden="" value=""></option>
+                        <option data-v-399ff5f7="" value="Pendente" style="color: rgb(255, 145, 0);"> A iniciar</option>
+                        <option data-v-399ff5f7="" value="Em andamento" style="color: rgb(0, 47, 255);"> Em andamento 0%</option>
+                        <option data-v-399ff5f7="" style="color: rgb(0, 47, 255);"> Em andamento 25% </option>
+                        <option data-v-399ff5f7="" style="color: rgb(0, 47, 255);"> Em andamento 50% </option>
+                        <option data-v-399ff5f7="" style="color: rgb(0, 47, 255);"> Em andamento 75% </option>
+                        <option data-v-399ff5f7="" style="color: rgb(0, 192, 0);"> Concluído </option>
+                      </select>
+                    </div>
+                  </div>
+                </td>
+           
+              </tr>
+              <tr data-v-399ff5f7="">
+                <td data-v-399ff5f7="" colspan="7"></td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div style="margin-top: 20px; text-align: right;">
+            <button @click="salvarNovaProposta" class="v-btn v-btn--elevated v-btn--icon v-theme--light v-btn--density-default v-btn--size-default v-btn--variant-elevated acao-secundaria">
+              <span class="v-btn_content">Salvar</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Adicionar Produto -->
+    <div v-if="showModalAdicionarProduto" class="modal-overlay" @click.self="fecharModalAdicionarProduto">
+      <div class="modal-content" style="width: 60%; max-width: 800px;">
+        <button class="modal-close" @click="fecharModalAdicionarProduto">&times;</button>
+        <div class="bloco margem">
+          <header class="alinha-centro" style="color: var(--cor-fonte);">
+            <h2>ADICIONAR PRODUTO</h2>
+          </header>
+
+          <fieldset class="margem grid-2">
+            <div>
+              <label>Código do Produto</label>
+              <input type="text" v-model="novoProduto.codigo" placeholder="CST040003 - Case X115 magnética" @input="atualizarDescricaoProduto">
+              <span v-if="novoProduto.descricao" style="display: block; margin-top: 5px; color: #666;">{{ novoProduto.descricao }}</span>
+            </div>
+            <div>
+              <label>Quantidade</label>
+              <input type="number" v-model="novoProduto.quantidade" style="width: 100px;">
+            </div>
+          </fieldset>
+
+          <fieldset class="margem">
+            <div class="grid">
+              <label>Especificações</label>
+              <div class="ql-toolbar ql-snow">
+                <span class="ql-formats">
+                  <span class="ql-header ql-picker">
+                    <span class="ql-picker-label" tabindex="0" role="button" aria-expanded="false" aria-controls="ql-picker-options-0">
+                      <svg viewBox="0 0 18 18"> 
+                        <polygon class="ql-stroke" points="7 11 9 13 11 11 7 11"></polygon> 
+                        <polygon class="ql-stroke" points="7 7 9 5 11 7 7 7"></polygon> 
+                      </svg>
+                    </span>
+                    <span class="ql-picker-options" aria-hidden="true" tabindex="-1" id="ql-picker-options-0">
+                      <span tabindex="0" role="button" class="ql-picker-item" data-value="1"></span>
+                      <span tabindex="0" role="button" class="ql-picker-item" data-value="2"></span>
+                      <span tabindex="0" role="button" class="ql-picker-item" data-value="3"></span>
+                      <span tabindex="0" role="button" class="ql-picker-item ql-selected"></span>
+                    </span>
+                  </span>
+                </span>
+                <span class="ql-formats">
+                  <button type="button" class="ql-bold">
+                    <svg viewBox="0 0 18 18"> 
+                      <path class="ql-stroke" d="M5,4H9.5A2.5,2.5,0,0,1,12,6.5v0A2.5,2.5,0,0,1,9.5,9H5A0,0,0,0,1,5,9V4A0,0,0,0,1,5,4Z"></path> 
+                      <path class="ql-stroke" d="M5,9h5.5A2.5,2.5,0,0,1,13,11.5v0A2.5,2.5,0,0,1,10.5,14H5a0,0,0,0,1,0,0V9A0,0,0,0,1,5,9Z"></path> 
+                    </svg>
+                  </button>
+                  <button type="button" class="ql-italic">
+                    <svg viewBox="0 0 18 18"> 
+                      <line class="ql-stroke" x1="7" x2="13" y1="4" y2="4"></line> 
+                      <line class="ql-stroke" x1="5" x2="11" y1="14" y2="14"></line> 
+                      <line class="ql-stroke" x1="8" x2="10" y1="14" y2="4"></line> 
+                    </svg>
+                  </button>
+                  <button type="button" class="ql-underline">
+                    <svg viewBox="0 0 18 18"> 
+                      <path class="ql-stroke" d="M5,3V9a4.012,4.012,0,0,0,4,4H9a4.012,4.012,0,0,0,4-4V3"></path> 
+                      <rect class="ql-fill" height="1" rx="0.5" ry="0.5" width="12" x="3" y="15"></rect> 
+                    </svg>
+                  </button>
+                  <button type="button" class="ql-link">
+                    <svg viewBox="0 0 18 18"> 
+                      <line class="ql-stroke" x1="7" x2="11" y1="7" y2="11"></line> 
+                      <path class="ql-even ql-stroke" d="M8.9,4.577a3.476,3.476,0,0,1,.36,4.679A3.476,3.476,0,0,1,4.577,8.9C3.185,7.5,2.035,6.4,4.217,4.217S7.5,3.185,8.9,4.577Z"></path> 
+                      <path class="ql-even ql-stroke" d="M13.423,9.1a3.476,3.476,0,0,0-4.679-.36,3.476,3.476,0,0,0,.36,4.679c1.392,1.392,2.5,2.542,4.679.36S14.815,10.5,13.423,9.1Z"></path> 
+                    </svg>
+                  </button>
+                </span>
+                <span class="ql-formats">
+                  <button type="button" class="ql-list" value="ordered">
+                    <svg viewBox="0 0 18 18"> 
+                      <line class="ql-stroke" x1="7" x2="15" y1="4" y2="4"></line> 
+                      <line class="ql-stroke" x1="7" x2="15" y1="9" y2="9"></line> 
+                      <line class="ql-stroke" x1="7" x2="15" y1="14" y2="14"></line> 
+                      <line class="ql-stroke ql-thin" x1="2.5" x2="4.5" y1="5.5" y2="5.5"></line> 
+                      <path class="ql-fill" d="M3.5,6A0.5,0.5,0,0,1,3,5.5V3.085l-0.276.138A0.5,0.5,0,0,1,2.053,3c-0.124-.247-0.023-0.324.224-0.447l1-.5A0.5,0.5,0,0,1,4,2.5v3A0.5,0.5,0,0,1,3.5,6Z"></path> 
+                      <path class="ql-stroke ql-thin" d="M4.5,10.5h-2c0-.234,1.85-1.076,1.85-2.234A0.959,0.959,0,0,0,2.5,8.156"></path> 
+                      <path class="ql-stroke ql-thin" d="M2.5,14.846a0.959,0.959,0,0,0,1.85-.109A0.7,0.7,0,0,0,3.75,14a0.688,0.688,0,0,0,.6-0.736,0.959,0.959,0,0,0-1.85-.109"></path> 
+                    </svg>
+                  </button>
+                  <button type="button" class="ql-list" value="bullet">
+                    <svg viewBox="0 0 18 18"> 
+                      <line class="ql-stroke" x1="6" x2="15" y1="4" y2="4"></line> 
+                      <line class="ql-stroke" x1="6" x2="15" y1="9" y2="9"></line> 
+                      <line class="ql-stroke" x1="6" x2="15" y1="14" y2="14"></line> 
+                      <line class="ql-stroke" x1="3" x2="3" y1="4" y2="4"></line> 
+                      <line class="ql-stroke" x1="3" x2="3" y1="9" y2="9"></line> 
+                      <line class="ql-stroke" x1="3" x2="3" y1="14" y2="14"></line> 
+                    </svg>
+                  </button>
+                </span>
+                <span class="ql-formats">
+                  <button type="button" class="ql-clean">
+                    <svg class="" viewBox="0 0 18 18"> 
+                      <line class="ql-stroke" x1="5" x2="13" y1="3" y2="3"></line> 
+                      <line class="ql-stroke" x1="6" x2="9.35" y1="12" y2="3"></line> 
+                      <line class="ql-stroke" x1="11" x2="15" y1="11" y2="15"></line> 
+                      <line class="ql-stroke" x1="15" x2="11" y1="11" y2="15"></line> 
+                      <rect class="ql-fill" height="1" rx="0.5" ry="0.5" width="7" x="2" y="14"></rect> 
+                    </svg>
+                  </button>
+                </span>
+              </div>
+              <div class="ql-container ql-snow" style="height: 80px;">
+                <div class="ql-editor ql-blank" data-gramm="false" contenteditable="true">
+                  <p><br></p>
+                </div>
+                <div class="ql-clipboard" contenteditable="true" tabindex="-1"></div>
+                <div class="ql-tooltip ql-hidden">
+                  <a class="ql-preview" rel="noopener noreferrer" target="_blank" href="about:blank"></a>
+                  <input type="text" data-formula="e=mc^2" data-link="https://quilljs.com" data-video="Embed URL">
+                  <a class="ql-action"></a>
+                  <a class="ql-remove"></a>
+                </div>
+              </div>
+            </div>
+          </fieldset>
+
+          <div style="margin-top: 20px; text-align: right;">
+            <button @click="adicionarNovoProduto" class="v-btn v-btn--elevated v-btn--icon v-theme--light v-btn--density-default v-btn--size-default v-btn--variant-elevated acao-secundaria">
+              <span class="v-btn_content">Adicionar</span>
+            </button>
+          </div>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    new Vue({
+      el: '#vendas',
+      data: {
+        showModalDetalhes: false,
+        showModalNovaProposta: false,
+        showModalAdicionarProduto: false,
+        editandoProduto: false,
+        quill: null,
+        catalogoProdutos: [
+          { codigo: 'CST040003', descricao: 'Case X115 magnética' },
+          { codigo: 'PLUG040002', descricao: 'Plug Magnético C' },
+          { codigo: 'BRC040003', descricao: 'Braço Curto B PT' },
+          { codigo: 'PC 50060', descricao: 'Case X115 magnética' },
+          { codigo: 'PC 50064', descricao: 'OPT0921' }
+        ],
+        novoProduto: {
+          codigo: '',
+          descricao: '',
+          previsaoEntrega: '',
+          quantidade: '',
+          estoque: '',
+          observacao: '',
+          linkAnexo: '',
+          reservadoExpedicao: '',
+          quantidadeProduzir: '',
+          numeroOP: '',
+          previsaoConclusao: ''
+        },
+        novaProposta: {
+          numero: '',
+          oportunidade: '',
+          cliente: '',
+          cnpj: '',
+          dataCriacao: new Date().toISOString().split('T')[0],
+          dataAprovacao: '',
+          previsaoEntrega: '',
+          dataAtualizacao: '',
+          observacao: '',
+          observacoes: [
+            {
+              dataAtualizacao: '',
+              observacao: ''
+            }
+          ],
+          produtos: [
+            {
+              codigo: 'CST040003',
+              descricao: 'Case X115 magnética',
+              previsaoEntrega: '10/04/2025',
+              quantidade: '1000',
+              estoque: '500',
+              observacao: 'nova cor',
+              linkAnexo: 'www.uyhgt.com',
+              reservadoExpedicao: '500',
+              quantidadeProduzir: '500',
+              numeroOP: '000150',
+              previsaoConclusao: '10/04/2025'
+            },
+            {
+              codigo: 'PLUG040002',
+              descricao: 'Plug Magnético C',
+              previsaoEntrega: '10/04/2025',
+              quantidade: '1500',
+              estoque: '1000',
+              observacao: '-',
+              linkAnexo: '-',
+              reservadoExpedicao: '1000',
+              quantidadeProduzir: '500',
+              numeroOP: '',
+              previsaoConclusao: ''
+            },
+            {
+              codigo: 'BRC040003',
+              descricao: 'Braço Curto B PT',
+              previsaoEntrega: '10/04/2025',
+              quantidade: '250',
+              estoque: '0',
+              observacao: '-',
+              linkAnexo: '-',
+              reservadoExpedicao: '0',
+              quantidadeProduzir: '250',
+              numeroOP: '000151',
+              previsaoConclusao: '11/04/2025'
+            },
+            {
+              codigo: 'PC 50060',
+              descricao: 'Case X115 magnética',
+              previsaoEntrega: '10/04/2025',
+              quantidade: '750',
+              estoque: '500',
+              observacao: '-',
+              linkAnexo: '-',
+              reservadoExpedicao: '850',
+              quantidadeProduzir: '200',
+              numeroOP: '000152',
+              previsaoConclusao: '11/04/2025'
+            },
+            {
+              codigo: 'PC 50064',
+              descricao: 'OPT0921',
+              previsaoEntrega: '10/04/2025',
+              quantidade: '50',
+              estoque: '20',
+              observacao: '-',
+              linkAnexo: '-',
+              reservadoExpedicao: '10',
+              quantidadeProduzir: '250',
+              numeroOP: '000153',
+              previsaoConclusao: '11/04/2025'
+            }
+          ]
+        },
+        propostaSelecionada: {
+          numero: '',
+          dataCriacao: '',
+          cnpj: '',
+          cliente: '',
+          dataAprovacao: '',
+          previsaoEntrega: '',
+          produtos: [],
+          dataAtualizacao: '',
+          observacao: ''
+        },
+        propostas: [
+          {
+            numero: 'PC 50050',
+            oportunidade: 'OPT0987',
+            cliente: 'Solinfitec',
+            dataCriacao: '09/04/2025',
+            status: 'Aprovada',
+            dataAprovacao: '09/04/2025',
+            previsaoEntrega: '19/04/2025',
+            numeroNF: '00045',
+            dataEmissaoNF: '21/04/2025',
+            produtos: [
+              {
+                codigo: 'CST040003',
+                descricao: 'Case X115 magnética',
+                previsaoEntrega: '10/04/2025',
+                quantidade: 1000,
+                estoque: 500,
+                observacao: 'nova cor',
+                linkAnexo: 'www.uyhgt.com',
+                reservadoExpedicao: '500',
+                quantidadeProduzir: '500',
+                numeroOP: '000150',
+                previsaoConclusao: '10/04/2025'
+              },
+              {
+                codigo: 'PLUG040002',
+                descricao: 'Plug Magnético C',
+                previsaoEntrega: '10/04/2025',
+                quantidade: 1500,
+                estoque: 1000,
+                observacao: '-',
+                linkAnexo: '-',
+                reservadoExpedicao: '1000',
+                quantidadeProduzir: '500',
+                numeroOP: '',
+                previsaoConclusao: ''
+              }
+            ]
+          },
+          {
+            numero: 'PC 50056',
+            oportunidade: 'OPT0998',
+            cliente: 'Solinfitec',
+            dataCriacao: '09/04/2025',
+            status: 'Análise Cliente',
+            dataAprovacao: '09/04/2025',
+            previsaoEntrega: '-',
+            numeroNF: '-',
+            dataEmissaoNF: '-'
+          },
+          {
+            numero: 'PC 50056',
+            oportunidade: 'OPT0923',
+            cliente: 'Robert Boch Ltda',
+            dataCriacao: '09/04/2025',
+            status: 'Aprovada',
+            dataAprovacao: '09/04/2025',
+            previsaoEntrega: '19/04/2025',
+            numeroNF: '00045',
+            dataEmissaoNF: '21/04/2025'
+          },
+          {
+            numero: 'PC 50060',
+            oportunidade: 'OPT0922',
+            cliente: 'Solinfitec',
+            dataCriacao: '09/04/2025',
+            status: 'Aprovada',
+            dataAprovacao: '09/04/2025',
+            previsaoEntrega: '19/04/2025',
+            numeroNF: '00045',
+            dataEmissaoNF: '21/04/2025'
+          },
+          {
+            numero: 'PC 50064',
+            oportunidade: 'OPT0921',
+            cliente: 'Usina Alto Alegre',
+            dataCriacao: '09/04/2025',
+            status: 'Aprovada',
+            dataAprovacao: '09/04/2025',
+            previsaoEntrega: '19/04/2025',
+            numeroNF: '00045',
+            dataEmissaoNF: '21/04/2025'
+          }
+        ]
+      },
+      mounted() {
+        // Inicializa o editor Quill
+        this.quill = new Quill('.ql-container.ql-snow', {
+          theme: 'snow',
+          modules: {
+            toolbar: {
+              container: '.ql-toolbar.ql-snow',
+              handlers: {
+                'header': function(value) {
+                  if (value === 1) {
+                    this.quill.format('header', 1);
+                  } else if (value === 2) {
+                    this.quill.format('header', 2);
+                  } else if (value === 3) {
+                    this.quill.format('header', 3);
+                  } else {
+                    this.quill.format('header', false);
+                  }
+                }
+              }
+            }
+          }
+        });
+
+        // Vincula o conteúdo do editor ao novoProduto.observacao
+        this.quill.on('text-change', () => {
+          this.novoProduto.observacao = this.quill.root.innerHTML;
+        });
+      },
+      methods: {
+        abrirModalNovaProposta() {
+          this.showModalNovaProposta = true;
+        },
+        fecharModalNovaProposta() {
+          this.showModalNovaProposta = false;
+          this.novaProposta = {
+            numero: '',
+            oportunidade: '',
+            cliente: '',
+            cnpj: '',
+            dataCriacao: new Date().toISOString().split('T')[0],
+            dataAprovacao: '',
+            previsaoEntrega: '',
+            dataAtualizacao: '',
+            observacao: '',
+            observacoes: [
+              {
+                dataAtualizacao: '',
+                observacao: ''
+              }
+            ],
+            produtos: [
+              {
+                codigo: 'CST040003',
+                descricao: 'Case X115 magnética',
+                previsaoEntrega: '10/04/2025',
+                quantidade: '1000',
+                estoque: '500',
+                observacao: 'nova cor',
+                linkAnexo: 'www.uyhgt.com',
+                reservadoExpedicao: '500',
+                quantidadeProduzir: '500',
+                numeroOP: '000150',
+                previsaoConclusao: '10/04/2025'
+              },
+              {
+                codigo: 'PLUG040002',
+                descricao: 'Plug Magnético C',
+                previsaoEntrega: '10/04/2025',
+                quantidade: '1500',
+                estoque: '1000',
+                observacao: '-',
+                linkAnexo: '-',
+                reservadoExpedicao: '1000',
+                quantidadeProduzir: '500',
+                numeroOP: '',
+                previsaoConclusao: ''
+              },
+              {
+                codigo: 'BRC040003',
+                descricao: 'Braço Curto B PT',
+                previsaoEntrega: '10/04/2025',
+                quantidade: '250',
+                estoque: '0',
+                observacao: '-',
+                linkAnexo: '-',
+                reservadoExpedicao: '0',
+                quantidadeProduzir: '250',
+                numeroOP: '000151',
+                previsaoConclusao: '11/04/2025'
+              },
+              {
+                codigo: 'PC 50060',
+                descricao: 'Case X115 magnética',
+                previsaoEntrega: '10/04/2025',
+                quantidade: '750',
+                estoque: '500',
+                observacao: '-',
+                linkAnexo: '-',
+                reservadoExpedicao: '850',
+                quantidadeProduzir: '200',
+                numeroOP: '000152',
+                previsaoConclusao: '11/04/2025'
+              },
+              {
+                codigo: 'PC 50064',
+                descricao: 'OPT0921',
+                previsaoEntrega: '10/04/2025',
+                quantidade: '50',
+                estoque: '20',
+                observacao: '-',
+                linkAnexo: '-',
+                reservadoExpedicao: '10',
+                quantidadeProduzir: '250',
+                numeroOP: '000153',
+                previsaoConclusao: '11/04/2025'
+              }
+            ]
+          };
+        },
+        salvarNovaProposta() {
+          if (this.novoProduto.codigo) {
+            this.novaProposta.produtos.push({...this.novoProduto});
+            this.novoProduto = {
+              codigo: '',
+              descricao: '',
+              previsaoEntrega: '',
+              quantidade: '',
+              estoque: '',
+              observacao: '',
+              linkAnexo: '',
+              reservadoExpedicao: '',
+              quantidadeProduzir: '',
+              numeroOP: '',
+              previsaoConclusao: ''
+            };
+          }
+          this.propostas.push({...this.novaProposta});
+          this.fecharModalNovaProposta();
+        },
+        calcularTotal(produto) {
+          produto.total = produto.quantidade * produto.precoUnitario;
+        },
+        removerProduto(index) {
+          this.novaProposta.produtos.splice(index, 1);
+        },
+        adicionarProduto() {
+          this.editandoProduto = true;
+          this.novoProduto = {
+            codigo: '',
+            descricao: '',
+            previsaoEntrega: '',
+            quantidade: '',
+            estoque: '',
+            observacao: '',
+            linkAnexo: '',
+            reservadoExpedicao: '',
+            quantidadeProduzir: '',
+            numeroOP: '',
+            previsaoConclusao: ''
+          };
+        },
+        abrirModalDetalhes(proposta) {
+          this.propostaSelecionada = { ...proposta };
+          this.showModalDetalhes = true;
+        },
+        fecharModalDetalhes() {
+          this.showModalDetalhes = false;
+          this.propostaSelecionada = {
+            numero: '',
+            dataCriacao: '',
+            cnpj: '',
+            cliente: '',
+            dataAprovacao: '',
+            previsaoEntrega: '',
+            produtos: [],
+            dataAtualizacao: '',
+            observacao: ''
+          };
+        },
+        abrirModalAdicionarProduto() {
+          this.showModalAdicionarProduto = true;
+          // Limpa o editor quando a modal é aberta
+          if (this.quill) {
+            this.quill.setContents([]);
+          }
+        },
+        fecharModalAdicionarProduto() {
+          this.showModalAdicionarProduto = false;
+          this.novoProduto = {
+            codigo: '',
+            descricao: '',
+            previsaoEntrega: '',
+            quantidade: '',
+            estoque: '',
+            observacao: '',
+            linkAnexo: '',
+            reservadoExpedicao: '',
+            quantidadeProduzir: '',
+            numeroOP: '',
+            previsaoConclusao: ''
+          };
+          // Limpa o editor quando a modal é fechada
+          if (this.quill) {
+            this.quill.setContents([]);
+          }
+        },
+        adicionarNovoProduto() {
+          this.novaProposta.produtos.push({...this.novoProduto});
+          this.fecharModalAdicionarProduto();
+        },
+        atualizarDescricaoProduto() {
+          const produto = this.catalogoProdutos.find(p => p.codigo === this.novoProduto.codigo);
+          if (produto) {
+            this.novoProduto.descricao = produto.descricao;
+          } else {
+            this.novoProduto.descricao = '';
+          }
+        },
+        adicionarObservacao() {
+          this.novaProposta.observacoes.push({
+            dataAtualizacao: '',
+            observacao: ''
+          });
+        }
+      }
+    });
+  </script>
+</body>
+</html> 

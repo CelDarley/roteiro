@@ -1,0 +1,121 @@
+<section>
+  <div class="titulo">
+    <div class="margem container">
+      <div class="m-icone esquerda">
+        <a class="icone-voltar m-d" title="Voltar"></a>
+      </div>
+      <h2>Produção</h2>
+    </div>
+  </div>
+  <div class="margem container">
+    <div class="abas">
+      <a class="ativo">Ordens de produção </a>
+      <a>Kanban</a>
+    </div>
+    <!-- Kanban Board -->
+    <div class="kanban-container">
+      <div class="kanban-board">
+        <div
+          class="colunaKanban bloco"
+          style="border-color: rgb(255, 145, 0);"
+        >
+          <h3>OP OK</h3>
+          <div class="containerTarefa">
+            <draggable
+              v-model="kanban['OP OK']"
+              group="tarefas"
+              @end="onEnd"
+              :animation="150"
+              ghost-class="ghost"
+            >
+            <div
+              v-for="(tarefa, idx) in kanban['OP OK']"
+              :key="'ok-'+idx"
+              class="tarefa bloco"
+              @click="abrirModalTratarOP(tarefa)"
+            >
+              <span class="fonte-forte" style="font-size: 18px; display: block; word-wrap: break-word;">{{ tarefa.titulo }}</span>
+              <div class="rodapeTarefa">
+                <div style="flex: 1; min-width: 150px;">
+                  <span class="fonte-forte" style="display: block; word-wrap: break-word;">{{ tarefa.codigo }}</span>
+                </div>
+                <span style="flex: 1; min-width: 100px; text-align: left;">
+                  <span>{{ tarefa.cliente }}</span>
+                  <span>{{ tarefa.percentual }}</span>
+                </span>
+                <div style="flex: 1; min-width: 100px; text-align: left;">
+                  <span class="fonte-forte">Prev. Concl:</span> {{ tarefa.previsao }}
+                </div>
+              </div>
+            </div>
+            </draggable>
+          </div>
+        </div>
+        <div
+          class="colunaKanban bloco"
+          style="border-color: rgb(0, 47, 255);"
+        >
+          <h3>OP Com pendência</h3>
+          <div class="containerTarefa">
+            <draggable
+              v-model="kanban['OP Com pendência']"
+              group="tarefas"
+              @end="onEnd"
+              :animation="150"
+              ghost-class="ghost"
+            >
+            <div
+              v-for="(tarefa, idx) in kanban['OP Com pendência']"
+              :key="'pend-'+idx"
+              class="tarefa bloco"
+              @click="abrirModalTratarOP(tarefa)"
+            >
+              <span class="fonte-forte" style="font-size: 18px; display: block; word-wrap: break-word;">{{ tarefa.titulo }}</span>
+              <div class="rodapeTarefa">
+                <div style="flex: 1; min-width: 150px;">
+                  <span class="fonte-forte" style="display: block; word-wrap: break-word;">{{ tarefa.codigo }}</span>
+                </div>
+                <span style="flex: 1; min-width: 100px; text-align: left;">
+                  <span>{{ tarefa.cliente }}</span>
+                  <span>{{ tarefa.percentual }}</span>
+                </span>
+                <div style="flex: 1; min-width: 100px; text-align: left;">
+                  <span class="fonte-forte">Prev. Concl:</span> {{ tarefa.previsao }}
+                </div>
+              </div>
+            </div>
+            </draggable>
+          </div>
+        </div>
+        <div
+          class="colunaKanban bloco"
+          style="border-color: rgb(0, 192, 0);"
+        >
+          <h3>OP em tratamento</h3>
+          <div class="containerTarefa"></div>
+        </div>
+        <div
+          class="colunaKanban bloco"
+          style="border-color: rgb(255, 165, 0);"
+        >
+          <h3>Separação de material</h3>
+          <div class="containerTarefa"></div>
+        </div>
+        <div
+          class="colunaKanban bloco"
+          style="border-color: rgb(255, 165, 0);"
+        >
+          <h3>Produção/Montagem</h3>
+          <div class="containerTarefa"></div>
+        </div>
+        <div
+          class="colunaKanban bloco"
+          style="border-color: rgb(255, 0, 0);"
+        >
+          <h3>Expedição</h3>
+          <div class="containerTarefa"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section> 

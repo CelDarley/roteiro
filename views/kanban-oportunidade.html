@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Kanban Oportunidades</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link href="../css/thalamus.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vuedraggable@2.24.3/dist/vuedraggable.umd.min.js"></script>
+  <style>
+    .container {
+      width: 2280px !important;
+      max-width: none !important;
+    }
+    .kanban-container {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      position: relative;
+      display: block;
+      overflow: hidden;
+    }
+    .kanban-board {
+      min-height: 27vw;
+      display: flex;
+      flex-direction: row;
+      gap: var(--margem);
+      width: 100%;
+      margin: 0;
+      padding: 0;
+      align-items: flex-start;
+      position: relative;
+      top: 0;
+      left: 0;
+    }
+    .colunaKanban {
+      border: 1px solid var(--cor-separador);
+      border-radius: 12px;
+      width: 210px;
+      min-height: 400px;
+      text-align: center;
+      padding: var(--margem);
+      background: var(--cor-bg);
+      flex-shrink: 0;
+      margin: 0;
+      position: relative;
+      top: 0;
+      left: 0;
+    }
+    .colunaKanban:first-child {
+      margin-top: 25px;
+    }
+    .colunaKanban h3 {
+      margin-top: 0;
+      color: var(--cor-fonte-forte);
+    }
+    .containerTarefa {
+      margin-top: var(--margem);
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .tarefa {
+      border: 1px solid var(--cor-separador);
+      border-radius: 12px;
+      padding: var(--margem);
+      margin: var(--margem) auto;
+      text-align: left;
+      box-sizing: border-box;
+      background: var(--cor-bg);
+      cursor: move;
+      transition: box-shadow 0.2s, transform 0.2s;
+    }
+    .tarefa:hover {
+      box-shadow: 0 2px 8px var(--cor-primaria-fraca);
+      background: var(--cor-primaria-fraca);
+      transform: translateY(-2px);
+    }
+    .tarefa .fonte-forte {
+      font-size: 18px;
+      display: block;
+      overflow-wrap: break-word;
+    }
+    .rodapeTarefa {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-top: var(--margem);
+    }
+    .rodapeTarefa > div {
+      flex: 1 1 0%;
+      min-width: 150px;
+    }
+    .rodapeTarefa > span {
+      flex: 1 1 0%;
+      min-width: 100px;
+      text-align: left;
+    }
+    @media (max-width: 1200px) {
+      .kanban-board { 
+        flex-wrap: nowrap;
+      }
+      .colunaKanban { 
+        width: 210px;
+      }
+    }
+    .abas {
+      margin: 0;
+      padding: 0;
+      display: flex;
+      gap: var(--margem);
+      margin-bottom: var(--margem);
+      position: relative;
+    }
+    .abas a {
+      border: 1px solid var(--cor-separador);
+      padding: calc(var(--margem) - 10px);
+      text-decoration: none;
+      border-radius: 12px;
+      display: inline-block;
+      color: var(--cor-fonte);
+      margin: 0;
+    }
+    .abas .ativo {
+      background-color: var(--cor-primaria);
+      color: white;
+    }
+    iframe {
+      width: 2200px;
+      height: calc(200% + 40px);
+      border: none;
+      overflow: visible;
+    }
+  </style>
+</head>
+<body>
+  <div id="kanban-oportunidade">
+    <section>
+      <div class="titulo">
+        <div class="margem container">
+          <div class="m-icone esquerda"     style="width: 60%;">
+            <a class="icone-voltar m-d" title="Voltar"></a>
+          </div><h2>CRM</h2>
+        </div>
+      </div>
+      <div class="margem container">
+        <div class="abas">
+          <a @click="voltarParaCRM">Oportunidades</a>
+          <a class="ativo">Kanban</a>
+        </div>
+        <div class="bloco margem">
+        
+          <div class="kanban-container">
+            <div class="kanban-board">
+              <div class="colunaKanban bloco" style="border-color: rgb(255, 145, 0);">
+                <h3>Prospect+Lead</h3>
+                <div class="containerTarefa">
+                  <draggable
+                    v-model="kanban['Prospect+Lead']"
+                    group="tarefas"
+                    @end="onEnd"
+                    :animation="150"
+                    ghost-class="ghost"
+                  >
+                    <div
+                      v-for="(tarefa, idx) in kanban['Prospect+Lead']"
+                      :key="'prospect-'+idx"
+                      class="tarefa bloco"
+                      @click="abrirModalDetalhes(tarefa)"
+                    >
+                      <span class="fonte-forte">{{ tarefa.titulo }}</span>
+                      <div class="rodapeTarefa">
+                        <div>
+                          <span class="fonte-forte">{{ tarefa.codigo }}</span>
+                        </div>
+                        <span>
+                          <span>{{ tarefa.cliente }}</span>
+                          <span>{{ tarefa.percentual }}</span>
+                        </span>
+                        <div>
+                          <span class="fonte-forte">Prev. Concl:</span> {{ tarefa.previsao }}
+                        </div>
+                      </div>
+                    </div>
+                  </draggable>
+                </div>
+              </div>
+              <div class="colunaKanban bloco" style="border-color: rgb(0, 47, 255);">
+                <h3>Desenvolvimento</h3>
+                <div class="containerTarefa">
+                  <draggable
+                    v-model="kanban['Desenvolvimento']"
+                    group="tarefas"
+                    @end="onEnd"
+                    :animation="150"
+                    ghost-class="ghost"
+                  >
+                    <div
+                      v-for="(tarefa, idx) in kanban['Desenvolvimento']"
+                      :key="'dev-'+idx"
+                      class="tarefa bloco"
+                      @click="abrirModalDetalhes(tarefa)"
+                    >
+                      <span class="fonte-forte">{{ tarefa.titulo }}</span>
+                      <div class="rodapeTarefa">
+                        <div>
+                          <span class="fonte-forte">{{ tarefa.codigo }}</span>
+                        </div>
+                        <span>
+                          <span>{{ tarefa.cliente }}</span>
+                          <span>{{ tarefa.percentual }}</span>
+                        </span>
+                        <div>
+                          <span class="fonte-forte">Prev. Concl:</span> {{ tarefa.previsao }}
+                        </div>
+                      </div>
+                    </div>
+                  </draggable>
+                </div>
+              </div>
+              <div class="colunaKanban bloco" style="border-color: rgb(0, 192, 0);">
+                <h3>Elaboração</h3>
+                <div class="containerTarefa">
+                  <draggable
+                    v-model="kanban['Elaboração']"
+                    group="tarefas"
+                    @end="onEnd"
+                    :animation="150"
+                    ghost-class="ghost"
+                  >
+                    <div
+                      v-for="(tarefa, idx) in kanban['Elaboração']"
+                      :key="'elab-'+idx"
+                      class="tarefa bloco"
+                      @click="abrirModalDetalhes(tarefa)"
+                    >
+                      <span class="fonte-forte">{{ tarefa.titulo }}</span>
+                      <div class="rodapeTarefa">
+                        <div>
+                          <span class="fonte-forte">{{ tarefa.codigo }}</span>
+                        </div>
+                        <span>
+                          <span>{{ tarefa.cliente }}</span>
+                          <span>{{ tarefa.percentual }}</span>
+                        </span>
+                        <div>
+                          <span class="fonte-forte">Prev. Concl:</span> {{ tarefa.previsao }}
+                        </div>
+                      </div>
+                    </div>
+                  </draggable>
+                </div>
+              </div>
+              <div class="colunaKanban bloco" style="border-color: rgb(255, 165, 0);">
+                <h3>Conquistado</h3>
+                <div class="containerTarefa">
+                  <draggable
+                    v-model="kanban['Conquistado']"
+                    group="tarefas"
+                    @end="onEnd"
+                    :animation="150"
+                    ghost-class="ghost"
+                  >
+                    <div
+                      v-for="(tarefa, idx) in kanban['Conquistado']"
+                      :key="'conq-'+idx"
+                      class="tarefa bloco"
+                      @click="abrirModalDetalhes(tarefa)"
+                    >
+                      <span class="fonte-forte">{{ tarefa.titulo }}</span>
+                      <div class="rodapeTarefa">
+                        <div>
+                          <span class="fonte-forte">{{ tarefa.codigo }}</span>
+                        </div>
+                        <span>
+                          <span>{{ tarefa.cliente }}</span>
+                          <span>{{ tarefa.percentual }}</span>
+                        </span>
+                        <div>
+                          <span class="fonte-forte">Prev. Concl:</span> {{ tarefa.previsao }}
+                        </div>
+                      </div>
+                    </div>
+                  </draggable>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    new Vue({
+      el: '#kanban-oportunidade',
+      data: {
+        kanban: {
+          'Prospect+Lead': [
+            {
+              titulo: 'OPT250457 - VELAPLAST',
+              codigo: '03.923.437/0002-76',
+              cliente: 'VELAPLAST',
+              percentual: '10%',
+              previsao: '10/04/2025'
+            }
+          ],
+          'Desenvolvimento': [
+            {
+              titulo: 'OPT250456 - COOPERATIVA',
+              codigo: '24.021.677/0012-27',
+              cliente: 'COOPERATIVA DOS PRODUTORES RURAIS',
+              percentual: '20%',
+              previsao: '12/04/2025'
+            }
+          ],
+          'Elaboração': [],
+          'Conquistado': []
+        }
+      },
+      methods: {
+        voltarParaCRM() {
+          window.location.href = 'crm.html';
+        },
+        onEnd(evt) {
+          console.log('Card movido:', evt);
+        },
+        abrirModalDetalhes(tarefa) {
+          // Implementar abertura do modal de detalhes
+          console.log('Abrindo detalhes da tarefa:', tarefa);
+        },
+        irParaOportunidades() {
+          window.location.href = 'oportunidades.html';
+        }
+      }
+    });
+  </script>
+</body>
+</html> 

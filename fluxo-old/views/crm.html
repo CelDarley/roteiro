@@ -1,0 +1,58 @@
+<section>
+  <div class="titulo">
+    <div class="margem container">
+      <div class="m-icone esquerda">
+        <a class="icone-voltar m-d" title="Voltar"></a>
+      </div>
+      <h2>CRM</h2>
+    </div>
+  </div>
+  <div class="margem container">
+    <div class="bloco margem">
+      <div class="alinha-direita">
+        <button 
+          type="button" 
+          class="v-btn v-btn--elevated v-btn--icon v-theme--light v-btn--density-default v-btn--size-default v-btn--variant-elevated acao-secundaria" 
+          @click="abrirModalNovaOportunidade"
+        >
+          <span class="v-btn_overlay"></span>
+          <span class="v-btnunderlay"></span>
+          <span class="v-btn_content" data-no-activator="">
+            <i class="mdi-plus mdi v-icon notranslate v-theme--light v-icon--size-default" aria-hidden="true"></i>
+            <span>Nova oportunidade</span>
+          </span>
+        </button>
+      </div>
+      <table class="tabela">
+        <tbody>
+          <tr>
+            <th>Nº Oportunidade</th>
+            <th>CNPJ</th>
+            <th>Cliente</th>
+            <th>Criação oportunidade</th>
+            <th>Fase</th>
+            <th>Conclusão oportunidade</th>
+            <th>Proposta Comercial</th>
+            <th>Aprovação Proposta Comercial</th>
+            <th>Previsão Entrega Cliente</th>
+            <th>NF</th>
+            <th>Emissão NF</th>
+          </tr>
+          <tr v-for="oportunidade in oportunidades" :key="oportunidade.numero">
+            <td>{{ oportunidade.numero }}</td>
+            <td>{{ oportunidade.cnpj }}</td>
+            <td>{{ oportunidade.cliente }}</td>
+            <td>{{ oportunidade.criacao }}</td>
+            <td>{{ oportunidade.fase }}</td>
+            <td>{{ oportunidade.conclusao }}</td>
+            <td>{{ oportunidade.proposta }}</td>
+            <td>{{ oportunidade.aprovacao }}</td>
+            <td>{{ oportunidade.previsaoEntrega }}</td>
+            <td>{{ oportunidade.nf }}</td>
+            <td>{{ oportunidade.emissaoNf }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section> 

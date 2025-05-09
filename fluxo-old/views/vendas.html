@@ -1,0 +1,120 @@
+<section v-if="currentView === 'vendas'">
+  <div class="titulo">
+    <div class="margem container">
+      <div class="m-icone esquerda">
+        <a class="icone-voltar m-d" title="Voltar"></a>
+      </div>
+      <h2>CRM</h2>
+    </div>
+  </div>
+  <div class="margem container">
+    <div class="bloco margem">
+      <div class="alinha-direita">
+        <button 
+          type="button" 
+          class="v-btn v-btn--elevated v-btn--icon v-theme--light v-btn--density-default v-btn--size-default v-btn--variant-elevated acao-secundaria" 
+          @click="abrirModalNovaOportunidade"
+        >
+          <span class="v-btn_overlay"></span>
+          <span class="v-btnunderlay"></span>
+          <span class="v-btn_content" data-no-activator="">
+            <i class="mdi-plus mdi v-icon notranslate v-theme--light v-icon--size-default" aria-hidden="true"></i>
+            <span>Nova oportunidade</span>
+          </span>
+        </button>
+      </div>
+      <table class="tabela">
+        <tbody>
+          <tr>
+            <th>Nº Oportunidade</th>
+            <th>CNPJ</th>
+            <th>Cliente</th>
+            <th>Criação oportunidade</th>
+            <th>Fase</th>
+            <th>Conclusão oportunidade</th>
+            <th>Proposta Comercial</th>
+            <th>Aprovação Proposta Comercial</th>
+            <th>Previsão Entrega Cliente</th>
+            <th>NF</th>
+            <th>Emissão NF</th>
+          </tr>
+          <tr v-for="oportunidade in oportunidades" :key="oportunidade.numero">
+            <td>{{ oportunidade.numero }}</td>
+            <td>{{ oportunidade.cnpj }}</td>
+            <td>{{ oportunidade.cliente }}</td>
+            <td>{{ oportunidade.criacao }}</td>
+            <td>{{ oportunidade.fase }}</td>
+            <td>{{ oportunidade.conclusao }}</td>
+            <td>{{ oportunidade.proposta }}</td>
+            <td>{{ oportunidade.aprovacao }}</td>
+            <td>{{ oportunidade.previsaoEntrega }}</td>
+            <td>{{ oportunidade.nf }}</td>
+            <td>{{ oportunidade.emissaoNf }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Modal Nova Oportunidade -->
+  <div v-if="modalNovaOportunidadeAberta" class="modal-overlay" @click.self="fecharModalNovaOportunidade">
+    <div class="modal-content">
+      <button class="modal-close" @click="fecharModalNovaOportunidade">&times;</button>
+      <h2>Nova Oportunidade</h2>
+      <div class="form-group">
+        <label>Nº Oportunidade</label>
+        <input type="text" v-model="novaOportunidade.numero" readonly>
+      </div>
+      <div class="form-group">
+        <label>Data de Criação</label>
+        <input type="date" v-model="novaOportunidade.criacao" readonly>
+      </div>
+      <div class="form-group">
+        <label>Cliente</label>
+        <select v-model="novaOportunidade.cliente">
+          <option value="">Selecione um cliente</option>
+          <option v-for="cliente in clientes" :key="cliente.id" :value="cliente.nome">
+            {{ cliente.nome }}
+          </option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Fase</label>
+        <select v-model="novaOportunidade.fase">
+          <option value="Prospect+lead">Prospect+lead</option>
+          <option value="Desenvolvimento">Desenvolvimento</option>
+          <option value="Elaboração">Elaboração</option>
+          <option value="Conquistado">Conquistado</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Status</label>
+        <select v-model="novaOportunidade.status">
+          <option value="Ativo">Ativo</option>
+          <option value="Suspenso">Suspenso</option>
+          <option value="Cancelado">Cancelado</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Temperatura</label>
+        <select v-model="novaOportunidade.temperatura">
+          <option value="20%">Frio</option>
+          <option value="40%">Morno</option>
+          <option value="60%">Quente</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Previsão de fechamento</label>
+        <input type="date" v-model="novaOportunidade.previsaoFechamento">
+      </div>
+      <div class="form-group">
+        <label>Problema apresentado</label>
+        <textarea v-model="novaOportunidade.problemaApresentado"></textarea>
+      </div>
+      <div class="modal-buttons">
+        <button type="button" class="btn btn-primary" @click="salvarOportunidade">Salvar</button>
+        <button type="button" class="btn btn-secondary" @click="fecharModalNovaOportunidade">Cancelar</button>
+      </div>
+    </div>
+  </div>
+</section> 

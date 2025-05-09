@@ -1,0 +1,1461 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Sistema de Gestão</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link href="css/thalamus.css" rel="stylesheet">
+  <style>
+    body { background: var(--cor-bg); margin: 0; }
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(0,0,0,0.5);
+      display: flex; justify-content: center; align-items: flex-start;
+      z-index: 9999;
+      overflow-y: auto;
+      padding: 20px 0;
+    }
+    .modal-content {
+      background: var(--cor-bg);
+      padding: var(--margem);
+      border-radius: 12px;
+      width: 90%;
+      max-width: 1200px;
+      position: relative;
+      box-shadow: 0 2px 16px var(--cor-cinza);
+      animation: modalIn 0.2s;
+      margin: 20px auto;
+      max-height: none;
+      overflow-y: visible;
+    }
+    .modal-close {
+      position: absolute;
+      top: 10px; right: 10px;
+      background: transparent;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: var(--cor-fonte);
+    }
+    @keyframes modalIn {
+      from { transform: scale(0.95); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    .kanban-container {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      position: relative;
+      display: block;
+    }
+    .kanban-board {
+      min-height: 27vw;
+      display: flex;
+      flex-direction: row;
+      gap: var(--margem);
+      width: 100%;
+      margin: 0;
+      padding: 0;
+      overflow-x: auto;
+      align-items: flex-start;
+      position: relative;
+      top: 0;
+      left: 0;
+    }
+    .colunaKanban {
+      border: 1px solid var(--cor-separador);
+      border-radius: 12px;
+      width: 300px;
+      min-height: 400px;
+      text-align: center;
+      padding: var(--margem);
+      background: var(--cor-bg);
+      flex-shrink: 0;
+      margin: 0;
+      position: relative;
+      top: 0;
+      left: 0;
+    }
+    .colunaKanban:first-child {
+      margin-top: 25px;
+    }
+    .colunaKanban h3 {
+      margin-top: 0;
+      color: var(--cor-fonte-forte);
+    }
+    .containerTarefa {
+      margin-top: var(--margem);
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .tarefa {
+      border: 1px solid var(--cor-separador);
+      border-radius: 12px;
+      padding: var(--margem);
+      margin: var(--margem) auto;
+      text-align: left;
+      box-sizing: border-box;
+      background: var(--cor-bg);
+      cursor: move;
+      transition: box-shadow 0.2s, transform 0.2s;
+    }
+    .tarefa:hover {
+      box-shadow: 0 2px 8px var(--cor-primaria-fraca);
+      background: var(--cor-primaria-fraca);
+      transform: translateY(-2px);
+    }
+    .ghost {
+      opacity: 0.5;
+      background: var(--cor-primaria-fraca);
+    }
+    .sortable-ghost {
+      opacity: 0.5;
+      background: var(--cor-primaria-fraca);
+    }
+    .rodapeTarefa {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-top: var(--margem);
+    }
+    @media (max-width: 1200px) {
+      .kanban-board { 
+        flex-wrap: nowrap;
+      }
+      .colunaKanban { 
+        width: 300px;
+      }
+    }
+    .producao-container {
+      padding: 20px;
+    }
+
+    .kanban-container {
+      overflow-x: auto;
+      padding: 20px 0;
+    }
+
+    .kanban-board {
+      display: flex;
+      gap: 20px;
+      min-width: max-content;
+    }
+
+    .colunaKanban {
+      min-width: 300px;
+      background: #f5f5f5;
+      border-radius: 8px;
+      padding: 15px;
+    }
+
+    .colunaKanban h3 {
+      margin: 0 0 15px 0;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #ddd;
+    }
+
+    .tarefas-container {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .tarefa {
+      background: white;
+      border-radius: 6px;
+      padding: 15px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .tarefa:hover {
+      transform: translateY(-2px);
+    }
+
+    .tarefa-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .tarefa-numero {
+      font-weight: bold;
+      color: #333;
+    }
+
+    .tarefa-cliente {
+      color: #666;
+    }
+
+    .tarefa-progresso {
+      margin: 10px 0;
+    }
+
+    .progresso-bar {
+      height: 6px;
+      background: #4CAF50;
+      border-radius: 3px;
+      margin-bottom: 5px;
+    }
+
+    .tarefa-footer {
+      font-size: 0.9em;
+      color: #666;
+    }
+
+    .modal-header {
+      padding: 20px;
+      border-bottom: 1px solid #ddd;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-header h3 {
+      margin: 0;
+    }
+
+    .close-button {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: #666;
+    }
+
+    .modal-body {
+      padding: 20px;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      color: #333;
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+
+    .modal-footer {
+      padding: 20px;
+      border-top: 1px solid #ddd;
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    .btn {
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      border: none;
+    }
+
+    .btn-primary {
+      background: #4CAF50;
+      color: white;
+    }
+
+    .btn-secondary {
+      background: #f5f5f5;
+      color: #333;
+    }
+
+    @media (max-width: 1200px) {
+      .kanban-board {
+        flex-direction: column;
+      }
+      
+      .colunaKanban {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <main id="main">
+      <aside>
+        <div>
+          <div class="titulo margem efeito">
+            <div class="m-icone">
+              <a
+                href="#"
+                class="icone-menu"
+                title="Menu"
+                @click.prevent="toggleMenu"
+              ></a>
+            </div>
+          </div>
+          <nav class="nav-maior separador">
+            <a aria-current="page" href="#/" class="router-link-exact-active">Fluxo de Atendimento ao Cliente</a>
+            <a href="#/indicadores">Indicadores</a>
+          </nav>
+          <nav class="nav-maior separador">
+            <a href="#/crm" @click="showCRM" :class="{ 'ativo': currentView === 'crm' }">CRM</a>
+            <a href="#/vendas" @click="showVendas" :class="{ 'ativo': currentView === 'vendas' }">Vendas</a>
+            <a href="#/producao" @click="showProducao" :class="{ 'ativo': currentView === 'producao' }">Produção</a>
+            <a href="#/expedicao" @click="showExpedicao" :class="{ 'ativo': currentView === 'expedicao' }">Expedição</a>
+          </nav>
+        </div>
+      </aside>
+      
+      <!-- Carrega as views dinamicamente -->
+      <component :is="currentView"></component>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vuedraggable@2.24.3/dist/vuedraggable.umd.min.js"></script>
+  <script>
+    // Registra os componentes
+    Vue.component('crm', {
+      template: '#crm-template',
+      data() {
+        return {
+          oportunidades: [
+            {
+              numero: 'OPT250457',
+              cnpj: '03.923.437/0002-76',
+              cliente: 'INDUSTRIA E COMERCIO DE ARTEFATOS PLASTICOS VELAPLAST LTDA',
+              criacao: '14/03/2025',
+              fase: 'Conquistado',
+              conclusao: '10/04/2025',
+              proposta: '453400',
+              aprovacao: '08/04/2025',
+              previsaoEntrega: '08/05/2025',
+              nf: '00003456',
+              emissaoNf: '12/05/2025'
+            },
+            {
+              numero: 'OPT250456',
+              cnpj: '24.021.677/0012-27',
+              cliente: 'COOPERATIVA DOS PRODUTORES RURAIS DO PRATA LTDA',
+              criacao: '14/03/2025',
+              fase: 'Conquistado',
+              conclusao: '10/04/2025',
+              proposta: '453400',
+              aprovacao: '08/04/2025',
+              previsaoEntrega: '08/05/2025',
+              nf: '00003456',
+              emissaoNf: '12/05/2025'
+            }
+          ],
+          modalNovaOportunidadeAberta: false,
+          novaOportunidade: {
+            numero: '',
+            criacao: new Date().toISOString().split('T')[0],
+            cliente: '',
+            fase: 'Prospect+lead',
+            status: 'Ativo',
+            temperatura: '40%',
+            previsaoFechamento: '',
+            problemaApresentado: ''
+          }
+        };
+      },
+      methods: {
+        abrirModalNovaOportunidade() {
+          this.modalNovaOportunidadeAberta = true;
+        },
+        fecharModalNovaOportunidade() {
+          this.modalNovaOportunidadeAberta = false;
+        },
+        salvarOportunidade() {
+          // Gera um número de oportunidade sequencial
+          const ultimaOportunidade = this.oportunidades[this.oportunidades.length - 1];
+          const ultimoNumero = parseInt(ultimaOportunidade.numero.replace('OPT', ''));
+          this.novaOportunidade.numero = `OPT${(ultimoNumero + 1).toString().padStart(6, '0')}`;
+          
+          // Adiciona a nova oportunidade à lista
+          this.oportunidades.push({
+            ...this.novaOportunidade,
+            cnpj: '',
+            conclusao: '',
+            proposta: '',
+            aprovacao: '',
+            previsaoEntrega: '',
+            nf: '',
+            emissaoNf: ''
+          });
+          
+          // Limpa o formulário e fecha o modal
+          this.novaOportunidade = {
+            numero: '',
+            criacao: new Date().toISOString().split('T')[0],
+            cliente: '',
+            fase: 'Prospect+lead',
+            status: 'Ativo',
+            temperatura: '40%',
+            previsaoFechamento: '',
+            problemaApresentado: ''
+          };
+          this.fecharModalNovaOportunidade();
+        }
+      }
+    });
+    
+    Vue.component('vendas', {
+      template: '#vendas-template',
+      data() {
+        return {
+          propostas: [
+            {
+              numero: 'PC 50050',
+              oportunidade: 'OPT0987',
+              cliente: 'Solinfitec',
+              criacao: '09/04/2025',
+              status: 'Aprovada',
+              aprovacao: '09/04/2025',
+              previsaoEntrega: '19/04/2025',
+              nf: '00045',
+              emissaoNf: '21/04/2025'
+            },
+            {
+              numero: 'PC 50056',
+              oportunidade: 'OPT0998',
+              cliente: 'Solinfitec',
+              criacao: '09/04/2025',
+              status: 'Análise Cliente',
+              aprovacao: '09/04/2025',
+              previsaoEntrega: '-',
+              nf: '-',
+              emissaoNf: '-'
+            }
+          ],
+          clientes: [
+            { id: 1, nome: 'Solinfitec' },
+            { id: 2, nome: 'Robert Boch Ltda' },
+            { id: 3, nome: 'Usina Alto Alegre' }
+          ],
+          modalNovaPropostaAberta: false,
+          novaProposta: {
+            numero: '',
+            criacao: new Date().toISOString().split('T')[0],
+            cliente: '',
+            oportunidade: '',
+            status: 'Em análise',
+            previsaoEntrega: ''
+          }
+        };
+      },
+      methods: {
+        abrirModalNovaProposta() {
+          this.modalNovaPropostaAberta = true;
+        },
+        fecharModalNovaProposta() {
+          this.modalNovaPropostaAberta = false;
+        },
+        salvarProposta() {
+          // Gera um número de proposta sequencial
+          const ultimaProposta = this.propostas[this.propostas.length - 1];
+          const ultimoNumero = parseInt(ultimaProposta.numero.replace('PC ', ''));
+          this.novaProposta.numero = `PC ${(ultimoNumero + 1).toString().padStart(5, '0')}`;
+          
+          // Adiciona a nova proposta à lista
+          this.propostas.push({
+            ...this.novaProposta,
+            aprovacao: '',
+            nf: '-',
+            emissaoNf: '-'
+          });
+          
+          // Limpa o formulário e fecha o modal
+          this.novaProposta = {
+            numero: '',
+            criacao: new Date().toISOString().split('T')[0],
+            cliente: '',
+            oportunidade: '',
+            status: 'Em análise',
+            previsaoEntrega: ''
+          };
+          this.fecharModalNovaProposta();
+        },
+        selecionarProposta(proposta) {
+          console.log('Proposta selecionada:', proposta);
+        }
+      }
+    });
+    
+    Vue.component('producao', {
+      template: '#producao-template',
+      data() {
+        return {
+          kanban: {
+            "OP OK": [
+              {
+                numero: "OP4450 - PA",
+                cliente: "Cliente A",
+                conclusao: "15/03/2024",
+                progresso: 100,
+                produto: "BRC040006 - Braço Autotravante Curto B",
+                quantidade: 1650,
+                materiais: [
+                  {
+                    codigo: "INJ010010",
+                    descricao: "FRONTAL M7 T113 T116",
+                    quantidade: 500,
+                    estoque: 400
+                  },
+                  {
+                    codigo: "FIX010033",
+                    descricao: "PAR PH AAT 2,9 X 6,5 PAN PRATA",
+                    quantidade: 2000,
+                    estoque: 1500
+                  },
+                  {
+                    codigo: "FIX010013",
+                    descricao: "ARRUELA 5/32 POL LISA PRATA",
+                    quantidade: 2000,
+                    estoque: 3000
+                  },
+                  {
+                    codigo: "ADS010007",
+                    descricao: "BORRACHA FE 20X10 ST",
+                    quantidade: 2000,
+                    estoque: 7000
+                  },
+                  {
+                    codigo: "PRE030003",
+                    descricao: "GABARITO DE COLAGEM CENTRAL MIKE",
+                    quantidade: 500,
+                    estoque: 100
+                  }
+                ]
+              },
+              {
+                numero: "OP4451 - PB",
+                cliente: "Cliente B",
+                conclusao: "20/03/2024",
+                progresso: 100
+              }
+            ],
+            "OP Com pendência": [
+              {
+                numero: "OP4452 - PC",
+                cliente: "Cliente C",
+                conclusao: "25/03/2024",
+                progresso: 75
+              }
+            ],
+            "OP em tratamento": [],
+            "Separação de material": [],
+            "Produção/Montagem": [],
+            "Expedição": []
+          },
+          modalNovaCompraAberta: false,
+          modalNovaProducaoAberta: false,
+          modalTarefaAberta: false,
+          tarefaSelecionada: null,
+          novaCompra: {
+            numero: '',
+            data: new Date().toISOString().split('T')[0],
+            fornecedor: '',
+            material: '',
+            quantidade: '',
+            preco: '',
+            status: 'Pendente'
+          },
+          novaProducao: {
+            numero: '',
+            data: new Date().toISOString().split('T')[0],
+            cliente: '',
+            produto: '',
+            quantidade: '',
+            previsaoEntrega: '',
+            status: 'Em andamento'
+          },
+          materialSelecionado: null
+        };
+      },
+      methods: {
+        abrirModalNovaCompra(material) {
+          this.materialSelecionado = material;
+          this.modalNovaCompraAberta = true;
+        },
+        fecharModalNovaCompra() {
+          this.modalNovaCompraAberta = false;
+          this.materialSelecionado = null;
+          this.novaCompra = {
+            numero: '',
+            data: new Date().toISOString().split('T')[0],
+            fornecedor: '',
+            material: '',
+            quantidade: '',
+            preco: '',
+            status: 'Pendente'
+          };
+        },
+        abrirModalNovaProducao(material) {
+          this.materialSelecionado = material;
+          this.modalNovaProducaoAberta = true;
+        },
+        fecharModalNovaProducao() {
+          this.modalNovaProducaoAberta = false;
+          this.materialSelecionado = null;
+          this.novaProducao = {
+            numero: '',
+            data: new Date().toISOString().split('T')[0],
+            cliente: '',
+            produto: '',
+            quantidade: '',
+            previsaoEntrega: '',
+            status: 'Em andamento'
+          };
+        },
+        abrirModalTarefa(tarefa) {
+          this.tarefaSelecionada = tarefa;
+          this.modalTarefaAberta = true;
+        },
+        fecharModalTarefa() {
+          this.modalTarefaAberta = false;
+          this.tarefaSelecionada = null;
+        },
+        salvarCompra() {
+          // Lógica para salvar nova compra
+          this.fecharModalNovaCompra();
+        },
+        salvarProducao() {
+          // Lógica para salvar nova produção
+          this.fecharModalNovaProducao();
+        },
+        comprarMaterial(material) {
+          // Lógica para comprar material
+          console.log('Comprar material:', material);
+        },
+        produzirMaterial(material) {
+          // Lógica para produzir material
+          console.log('Produzir material:', material);
+        }
+      }
+    });
+    
+    Vue.component('expedicao', {
+      template: '#expedicao-template',
+      data() {
+        return {
+          expedicoes: []
+        };
+      }
+    });
+
+    new Vue({
+      el: '#app',
+      data: {
+        currentView: 'crm'
+      },
+      methods: {
+        toggleMenu() {
+          const main = document.getElementById('main');
+          if (main) main.classList.toggle('esconde');
+        },
+        showCRM() {
+          this.currentView = 'crm';
+        },
+        showVendas() {
+          this.currentView = 'vendas';
+        },
+        showProducao() {
+          this.currentView = 'producao';
+        },
+        showExpedicao() {
+          this.currentView = 'expedicao';
+        }
+      }
+    });
+  </script>
+
+  <!-- Templates das views -->
+  <script type="text/x-template" id="crm-template">
+    <section>
+      <div class="titulo">
+        <div class="margem container">
+          <div class="m-icone esquerda">
+            <a class="icone-voltar m-d" title="Voltar"></a>
+          </div>
+          <h2>CRM</h2>
+        </div>
+      </div>
+      <div class="margem container">
+        <div class="bloco margem">
+          <div class="alinha-direita">
+            <button 
+              type="button" 
+              class="v-btn v-btn--elevated v-btn--icon v-theme--light v-btn--density-default v-btn--size-default v-btn--variant-elevated acao-secundaria" 
+              @click="abrirModalNovaOportunidade"
+            >
+              <span class="v-btn_overlay"></span>
+              <span class="v-btnunderlay"></span>
+              <span class="v-btn_content" data-no-activator="">
+                <i class="mdi-plus mdi v-icon notranslate v-theme--light v-icon--size-default" aria-hidden="true"></i>
+                <span>Nova oportunidade</span>
+              </span>
+            </button>
+          </div>
+          <table class="tabela">
+            <tbody>
+              <tr>
+                <th>Nº Oportunidade</th>
+                <th>CNPJ</th>
+                <th>Cliente</th>
+                <th>Criação oportunidade</th>
+                <th>Fase</th>
+                <th>Conclusão oportunidade</th>
+                <th>Proposta Comercial</th>
+                <th>Aprovação Proposta Comercial</th>
+                <th>Previsão Entrega Cliente</th>
+                <th>NF</th>
+                <th>Emissão NF</th>
+              </tr>
+              <tr v-for="oportunidade in oportunidades" :key="oportunidade.numero">
+                <td>{{ oportunidade.numero }}</td>
+                <td>{{ oportunidade.cnpj }}</td>
+                <td>{{ oportunidade.cliente }}</td>
+                <td>{{ oportunidade.criacao }}</td>
+                <td>{{ oportunidade.fase }}</td>
+                <td>{{ oportunidade.conclusao }}</td>
+                <td>{{ oportunidade.proposta }}</td>
+                <td>{{ oportunidade.aprovacao }}</td>
+                <td>{{ oportunidade.previsaoEntrega }}</td>
+                <td>{{ oportunidade.nf }}</td>
+                <td>{{ oportunidade.emissaoNf }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Modal Nova Oportunidade -->
+      <div v-if="modalNovaOportunidadeAberta" class="modal-overlay" @click.self="fecharModalNovaOportunidade">
+        <div class="modal-content">
+          <button class="modal-close" @click="fecharModalNovaOportunidade">&times;</button>
+          <h2>Nova Oportunidade</h2>
+          <div class="margem">
+            <fieldset class="margem grid-4">
+              <div>
+                <label>Nº Oportunidade</label>
+                <input type="text" v-model="novaOportunidade.numero" readonly>
+              </div>
+              <div>
+                <label>Data de Criação</label>
+                <input type="date" v-model="novaOportunidade.criacao" readonly>
+              </div>
+              <div class="col-2">
+                <label>Cliente</label>
+                <div class="alinha-v">
+                  <input type="text" placeholder="CNPJ" style="margin-right: 3px;">
+                  <select style="margin-left: 3px;">
+                    <option hidden="hidden"></option>
+                  </select>
+                  <i title="Cadastrar Cliente" class="bi bi-person-plus-fill" style="margin-left: 0.5rem; color: var(--cor-fonte); font-size: 20px;"></i>
+                </div>
+              </div>
+              <div class="col-2">
+                <label>Contato</label>
+                <div style="display: flex; align-items: center;">
+                  <input type="text" value="André Andreata" style="margin-right: 8px;">
+                  <i title="Cadastrar Cliente" class="bi bi-person-plus-fill" style="color: var(--cor-fonte); font-size: 20px;"></i>
+                </div>
+              </div>
+              <div class="col-2">
+                <label>Vendedor</label>
+                <div class="alinha-v">
+                  <select style="margin-left: 3px;">
+                    <option hidden="hidden"></option>
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label>Fase atual</label>
+                <div class="alinha-v">
+                  <select v-model="novaOportunidade.fase">
+                    <option>Prospect+lead</option>
+                    <option>Desenvolvimento</option>
+                    <option>Elaboração</option>
+                    <option>Conquistado</option>
+                  </select>
+                  <i class="bi bi-circle-fill" style="margin-left: 1rem; color: white;"></i>
+                </div>
+              </div>
+              <div>
+                <label>Status</label>
+                <div class="alinha-v">
+                  <select v-model="novaOportunidade.status">
+                    <option selected="selected">Ativo</option>
+                    <option>Suspenso</option>
+                    <option>Cancelado</option>
+                  </select>
+                  <i class="bi bi-circle-fill" style="margin-left: 1rem; color: white;"></i>
+                </div>
+              </div>
+              <div>
+                <label>Temperatura</label>
+                <div class="alinha-v">
+                  <select v-model="novaOportunidade.temperatura" :style="{ backgroundColor: novaOportunidade.temperatura === '20%' ? 'rgb(255, 235, 59)' : novaOportunidade.temperatura === '40%' ? 'rgb(255, 167, 38)' : 'rgb(255, 112, 67)' }">
+                    <option value="20%" style="background-color: rgb(255, 235, 59);">Frio</option>
+                    <option value="40%" style="background-color: rgb(255, 167, 38);">Morno</option>
+                    <option value="60%" style="background-color: rgb(255, 112, 67);">Quente</option>
+                  </select>
+                  <i class="bi bi-circle-fill" style="margin-left: 1rem; color: white;"></i>
+                </div>
+              </div>
+              <div>
+                <label>Previsão de fechamento</label>
+                <div class="alinha-v">
+                  <input type="date" v-model="novaOportunidade.previsaoFechamento">
+                  <i class="bi bi-circle-fill" style="margin-left: 1rem; color: white;"></i>
+                </div>
+              </div>
+              <div style="grid-column: 1 / span 4; width: 100%;">
+                <label>Problema apresentado</label>
+                <textarea v-model="novaOportunidade.problemaApresentado" style="display: block; width: 100%; box-sizing: border-box;"></textarea>
+              </div>
+            </fieldset>
+
+            <h3>Solução Proposta e observações gerais</h3>
+            <div class="margem bloco2">
+              <fieldset class="grid-3">
+                <div style="position: absolute; justify-self: end;">
+                  <i title="Remover Evolução" class="bi bi-x-circle"></i>
+                </div>
+                <div>
+                  <label>Data da Atualização</label>
+                  <input type="date">
+                </div>
+                <div class="col-2">
+                  <label>Solução Final Atualizada</label>
+                  <textarea></textarea>
+                </div>
+              </fieldset>
+              <div class="submit">
+                <button class="acao-secundaria">Adicionar</button>
+              </div>
+            </div>
+
+            <h3>Orçamentos encaminhados</h3>
+            <div class="margem bloco2">
+              <fieldset class="grid-3" style="display: flex; align-items: center; gap: 1rem;">
+                <div style="flex: 1; display: flex; flex-direction: column;">
+                  <label>Proposta</label>
+                  <input type="text" value="PC5054">
+                </div>
+                <div style="width: 120px; display: flex; flex-direction: column;">
+                  <label>Aprovada</label>
+                  <label class="switch" style="position: relative; display: inline-block; width: 60px; height: 34px;">
+                    <input type="checkbox" style="opacity: 0; width: 0; height: 0;">
+                    <span style="position: absolute; cursor: pointer; inset: 0; background-color: #ccc; transition: .4s; border-radius: 34px;">
+                      <span style="position: absolute; content: ''; height: 26px; width: 26px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%;"></span>
+                    </span>
+                  </label>
+                </div>
+                <div style="flex: 2; display: flex; flex-direction: column;">
+                  <label>Data de entrega ao Cliente</label>
+                  <input type="date" style="opacity: 0.6; background-color: #f5f5f5;">
+                </div>
+                <div style="display: flex; align-items: center; padding-top: 24px;">
+                  <i title="Remover Evolução" class="bi bi-x-circle" style="cursor: pointer;"></i>
+                </div>
+              </fieldset>
+              <div class="submit">
+                <button class="acao-secundaria">Adicionar</button>
+              </div>
+            </div>
+
+            <h3>Tarefas</h3>
+            <table class="tabela">
+              <tbody>
+                <tr>
+                  <th>Nr</th>
+                  <th>Descrição</th>
+                  <th>H.P.</th>
+                  <th>Responsável</th>
+                  <th>Inicio Previsto</th>
+                  <th>Fim Previsto</th>
+                  <th>Status</th>
+                  <th></th>
+                  <th></th>
+                </tr>
+                <tr>
+                  <td>Tar.-8</td>
+                  <td style="min-width: 14rem; max-width: 14rem; justify-content: center;">
+                    <input type="text" title="Testar o braço fixo com as novas " style="width: 100%; overflow: hidden; text-overflow: ellipsis; border: none;">
+                  </td>
+                  <td>
+                    <select class="HP" style="width: 2.5rem; height: 2.5rem; text-align: center; border-radius: 50%; padding: 0; opacity: 1;">
+                      <option hidden="hidden">0</option>
+                      <option>1</option>
+                      <option>2</option>
+                      <option>3</option>
+                      <option>5</option>
+                      <option>8</option>
+                      <option>13</option>
+                      <option>21</option>
+                      <option>34</option>
+                      <option>55</option>
+                      <option>89</option>
+                      <option>144</option>
+                      <option>233</option>
+                    </select>
+                  </td>
+                  <td>
+                    <select>
+                      <option hidden="hidden"></option>
+                      <option value="7">Darley Wilson Dias</option>
+                      <option value="46">Paulo Rubens Salerno Del Menezzi Vicari</option>
+                      <option value="3">Mariana Mozzer Arantes</option>
+                    </select>
+                  </td>
+                  <td>
+                    <input type="date" style="background-color: transparent; cursor: pointer; width: 7rem; text-align: left; padding-inline: 0; border: none; opacity: 1;">
+                  </td>
+                  <td>
+                    <input type="date" style="background-color: transparent; cursor: pointer; width: 7rem; text-align: left; padding-inline: 0; border: none; opacity: 1;">
+                  </td>
+                  <td style="padding: 0;">
+                    <div style="display: flex; justify-content: center;">
+                      <div style="position: relative;">
+                        <div role="progressbar" aria-hidden="false" aria-valuemin="0" aria-valuemax="100" aria-valuenow="25" class="v-progress-linear v-progress-linear--active v-theme--light v-locale--is-ltr" style="top: 0; height: 2rem; --v-progress-linear-height: 4px; border: 1px solid var(--cor-fonte-fraca); border-radius: 25px; width: 12rem;">
+                          <div class="v-progress-linear_background" style="background-color: var(--cor-ok);"></div>
+                          <div class="v-progress-linearbuffer" style="background-color: var(--cor-ok); width: 0%;"></div>
+                          <div class="v-progress-lineardeterminate" style="background-color: var(--cor-ok); width: 25%;"></div>
+                        </div>
+                        <select title="Em andamento 25%" style="color: black; opacity: 1; border: none; padding-left: 0.5rem; position: absolute; top: 0; left: 0; outline: none; border-radius: 25px; height: 2rem; width: 12rem; text-align: center; background-color: transparent; padding-top: 0; padding-bottom: 0;">
+                          <option hidden="hidden" value=""></option>
+                          <option value="Pendente" style="color: rgb(255, 145, 0);">A iniciar</option>
+                          <option value="Em andamento" style="color: rgb(0, 47, 255);">Em andamento 0%</option>
+                          <option style="color: rgb(0, 47, 255);">Em andamento 25%</option>
+                          <option style="color: rgb(0, 47, 255);">Em andamento 50%</option>
+                          <option style="color: rgb(0, 47, 255);">Em andamento 75%</option>
+                          <option style="color: rgb(0, 192, 0);">Concluído</option>
+                        </select>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="bloco2 margem">
+              <div class="alinha-v">
+                <button title="Mais" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="v-menu-7" class="v-btn v-btn--elevated v-btn--icon v-theme--light v-btn--density-default v-btn--size-default v-btn--variant-elevated acao-secundaria" style="transform: scale(0.7);">
+                  <span class="v-btn_overlay"></span>
+                  <span class="v-btnunderlay"></span>
+                  <span data-no-activator="" class="v-btn_content">
+                    <i aria-hidden="true" class="mdi-plus mdi v-icon notranslate v-theme--light v-icon--size-default"></i>
+                  </span>
+                </button>
+                <input type="file" style="display: none;">
+                <div style="display: flex; padding-left: 0.2rem; border-radius: 5px; width: 100%; align-content: center; gap: 5px;">
+                  <input type="text" placeholder="O que será feito?" class="input-comentario" style="height: 3rem; margin: 0 0 0 5px;">
+                </div>
+              </div>
+            </div>
+            <div class="direita margem alinha-v">
+              <div class="tags">
+                <a @click="salvarOportunidade">Salvar</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </script>
+
+  <script type="text/x-template" id="vendas-template">
+    <section v-if="currentView === 'vendas'">
+      <div class="titulo">
+        <div class="margem container">
+          <div class="m-icone direita">
+            <div class="pesquisa">
+              <input type="text" placeholder="Pesquise aqui">
+              <a class="icone-pesquisa" title="Pesquise"></a>
+            </div>
+          </div>
+          <h2>Proposta Comercial</h2>
+        </div>
+      </div>
+      <div class="margem container">
+        <br>
+        <div class="bloco margem">
+          <div class="alinha-v" style="display: flex; justify-content: space-between;">
+            <div title="Clique aqui para adicionar"></div>
+          </div>
+          <br>
+          <button type="button" class="v-btn v-btn--elevated v-btn--icon v-theme--light v-btn--density-default v-btn--size-default v-btn--variant-elevated acao-secundaria" @click="abrirModalNovaProposta">
+            <span class="v-btn_overlay"></span>
+            <span class="v-btnunderlay"></span>
+            <span class="v-btn_content" data-no-activator="">
+              <i class="mdi-plus mdi v-icon notranslate v-theme--light v-icon--size-default" aria-hidden="true"></i>
+              <span>Nova Proposta</span>
+            </span>
+          </button>
+          <table class="tabela">
+            <tbody>
+              <tr>
+                <th scope="col" style="white-space: nowrap;">
+                  <span style="cursor: pointer;">Proposta comercial</span>
+                  <i class="fa-solid fa-caret-up" id="setaCimaProdutoCod" style="display: none;"></i>
+                  <i class="fa-solid fa-caret-down" id="setaBaixoProdutoCod" style="display: none;"></i>
+                </th>
+                <th scope="col" style="white-space: nowrap;">
+                  <span style="cursor: pointer;">Oportunidade</span>
+                  <i class="fa-solid fa-caret-up" id="setaCimaDesc" style="display: none;"></i>
+                  <i class="fa-solid fa-caret-down" id="setaBaixoDesc" style="display: none;"></i>
+                </th>
+                <th scope="col" style="white-space: nowrap;">
+                  <span style="cursor: pointer;">Cliente</span>
+                  <i class="fa-solid fa-caret-up" id="setaCimaTipo" style="display: none;"></i>
+                  <i class="fa-solid fa-caret-down" id="setaBaixoTipo" style="display: none;"></i>
+                </th>
+                <th scope="col" style="white-space: nowrap;">
+                  <span style="cursor: pointer;">Criação proposta</span>
+                  <i class="fa-solid fa-caret-up" id="setaCimaFamiliaProduto" style="display: none;"></i>
+                  <i class="fa-solid fa-caret-down" id="setaBaixoFamiliaProduto" style="display: none;"></i>
+                </th>
+                <th style="text-align: center;">Status da proposta</th>
+                <th style="text-align: center;">Aprovação</th>
+                <th style="text-align: center;">Previsão de entrega</th>
+                <th style="text-align: center; background-color: rgba(255, 0, 0, 0.1);">NF</th>
+                <th style="text-align: center; background-color: rgba(255, 0, 0, 0.1);">Data Emissão</th>
+              </tr>
+              <tr v-for="proposta in propostas" :key="proposta.numero" style="cursor: pointer;" @click="selecionarProposta(proposta)">
+                <td>{{ proposta.numero }}</td>
+                <td>{{ proposta.oportunidade }}</td>
+                <td>{{ proposta.cliente }}</td>
+                <td>{{ proposta.criacao }}</td>
+                <td>{{ proposta.status }}</td>
+                <td>{{ proposta.aprovacao }}</td>
+                <td>{{ proposta.previsaoEntrega }}</td>
+                <td style="background-color: rgba(255, 0, 0, 0.1);">{{ proposta.nf }}</td>
+                <td style="background-color: rgba(255, 0, 0, 0.1);">{{ proposta.emissaoNf }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Modal Nova Proposta -->
+      <div v-if="modalNovaPropostaAberta" class="modal-overlay" @click.self="fecharModalNovaProposta">
+        <div class="modal-content">
+          <button class="modal-close" @click="fecharModalNovaProposta">&times;</button>
+          <h2>Nova Proposta Comercial</h2>
+          <div class="form-group">
+            <label>Nº Proposta</label>
+            <input type="text" v-model="novaProposta.numero" readonly>
+          </div>
+          <div class="form-group">
+            <label>Data de Criação</label>
+            <input type="date" v-model="novaProposta.criacao" readonly>
+          </div>
+          <div class="form-group">
+            <label>Cliente</label>
+            <select v-model="novaProposta.cliente">
+              <option value="">Selecione um cliente</option>
+              <option v-for="cliente in clientes" :key="cliente.id" :value="cliente.nome">
+                {{ cliente.nome }}
+              </option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Oportunidade</label>
+            <select v-model="novaProposta.oportunidade">
+              <option value="">Selecione uma oportunidade</option>
+              <option v-for="oportunidade in oportunidades" :key="oportunidade.numero" :value="oportunidade.numero">
+                {{ oportunidade.numero }} - {{ oportunidade.cliente }}
+              </option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Status</label>
+            <select v-model="novaProposta.status">
+              <option value="Em análise">Em análise</option>
+              <option value="Aprovada">Aprovada</option>
+              <option value="Rejeitada">Rejeitada</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Previsão de entrega</label>
+            <input type="date" v-model="novaProposta.previsaoEntrega">
+          </div>
+          <div class="modal-buttons">
+            <button type="button" class="btn btn-primary" @click="salvarProposta">Salvar</button>
+            <button type="button" class="btn btn-secondary" @click="fecharModalNovaProposta">Cancelar</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </script>
+
+  <script type="text/x-template" id="producao-template">
+    <div class="producao-container">
+      <div class="kanban-container">
+        <div class="kanban-board">
+          <div v-for="(tarefas, coluna) in kanban" :key="coluna" class="colunaKanban">
+            <h3>{{ coluna }}</h3>
+            <div class="tarefas-container">
+              <div v-for="tarefa in tarefas" :key="tarefa.numero" class="tarefa" @click="abrirModalTarefa(tarefa)">
+                <div class="tarefa-header">
+                  <span class="tarefa-numero">{{ tarefa.numero }}</span>
+                  <span class="tarefa-cliente">{{ tarefa.cliente }}</span>
+                </div>
+                <div class="tarefa-progresso">
+                  <div class="progresso-bar" :style="{ width: tarefa.progresso + '%' }"></div>
+                  <span>{{ tarefa.progresso }}%</span>
+                </div>
+                <div class="tarefa-footer">
+                  <span class="tarefa-data">Conclusão: {{ tarefa.conclusao }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Tarefa -->
+      <div v-if="modalTarefaAberta" class="modal-overlay" @click="fecharModalTarefa">
+        <div class="modal-content" @click.stop>
+          <div class="modal-header">
+            <h3>Detalhes da Tarefa</h3>
+            <button class="close-button" @click="fecharModalTarefa">&times;</button>
+          </div>
+          <div class="modal-body">
+            <div class="bloco">
+              <div class="margem grid-3">
+                <div>
+                  <label>Produto</label>
+                  <input type="text" value="BRC040006 - Braço Autotravante Curto B">
+                </div>
+                <div>
+                  <label>Quantidade a Produzir</label>
+                  <input type="number" value="1650">
+                </div>
+                <div>
+                  <label>Previsão de Conclusão</label>
+                  <input type="date">
+                </div>
+              </div>
+              <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;"></div>
+              <table class="tabela">
+                <tbody>
+                  <tr>
+                    <th scope="col" style="white-space: nowrap;">Produto</th>
+                    <th scope="col" style="white-space: nowrap;">Quantidade</th>
+                    <th scope="col" style="white-space: nowrap;">Estoque</th>
+                    <th scope="col" style="white-space: nowrap;">Comprar</th>
+                    <th scope="col" style="white-space: nowrap;">Produzir</th>
+                  </tr>
+                  <tr style="cursor: pointer;">
+                    <td>INJ010010 - FRONTAL M7 T113 T116</td>
+                    <td><input type="text" size="7" value="500"></td>
+                    <td>400</td>
+                    <td>
+                      <button class="v-btn v-btn--elevated v-btn--icon v-theme--light v-btn--density-default v-btn--size-default v-btn--variant-elevated acao-secundaria" @click="abrirModalNovaCompra({
+                        codigo: 'INJ010010',
+                        descricao: 'FRONTAL M7 T113 T116',
+                        quantidade: 500,
+                        estoque: 400
+                      })">
+                        <span class="v-btn__overlay"></span>
+                        <span class="v-btn__underlay"></span>
+                        <span data-no-activator="" class="v-btn__content">
+                          <i aria-hidden="true" class="mdi-plus mdi v-icon notranslate v-theme--light v-icon--size-default"></i>
+                          Comprar
+                        </span>
+                      </button>
+                    </td>
+                    <td>
+                      <button class="v-btn v-btn--elevated v-btn--icon v-theme--light v-btn--density-default v-btn--size-default v-btn--variant-elevated acao-secundaria" @click="abrirModalNovaProducao({
+                        codigo: 'INJ010010',
+                        descricao: 'FRONTAL M7 T113 T116',
+                        quantidade: 500,
+                        estoque: 400
+                      })">
+                        <span class="v-btn__overlay"></span>
+                        <span class="v-btn__underlay"></span>
+                        <span data-no-activator="" class="v-btn__content">
+                          <i aria-hidden="true" class="mdi-plus mdi v-icon notranslate v-theme--light v-icon--size-default"></i>
+                          Produzir
+                        </span>
+                      </button>
+                    </td>
+                  </tr>
+                  <tr style="cursor: pointer;">
+                    <td>FIX010033 - PAR PH AAT 2,9 X 6,5 PAN PRATA</td>
+                    <td><input type="text" size="7" value="2000"></td>
+                    <td>1500</td>
+                    <td>
+                      <button class="v-btn v-btn--elevated v-btn--icon v-theme--light v-btn--density-default v-btn--size-default v-btn--variant-elevated acao-secundaria" @click="abrirModalNovaCompra({
+                        codigo: 'FIX010033',
+                        descricao: 'PAR PH AAT 2,9 X 6,5 PAN PRATA',
+                        quantidade: 2000,
+                        estoque: 1500
+                      })">
+                        <span class="v-btn__overlay"></span>
+                        <span class="v-btn__underlay"></span>
+                        <span data-no-activator="" class="v-btn__content">
+                          <i aria-hidden="true" class="mdi-plus mdi v-icon notranslate v-theme--light v-icon--size-default"></i>
+                          Comprar
+                        </span>
+                      </button>
+                    </td>
+                    <td>
+                      <button class="v-btn v-btn--elevated v-btn--icon v-theme--light v-btn--density-default v-btn--size-default v-btn--variant-elevated acao-secundaria" @click="abrirModalNovaProducao({
+                        codigo: 'FIX010033',
+                        descricao: 'PAR PH AAT 2,9 X 6,5 PAN PRATA',
+                        quantidade: 2000,
+                        estoque: 1500
+                      })">
+                        <span class="v-btn__overlay"></span>
+                        <span class="v-btn__underlay"></span>
+                        <span data-no-activator="" class="v-btn__content">
+                          <i aria-hidden="true" class="mdi-plus mdi v-icon notranslate v-theme--light v-icon--size-default"></i>
+                          Produzir
+                        </span>
+                      </button>
+                    </td>
+                  </tr>
+                  <tr style="cursor: pointer;">
+                    <td>FIX010013 - ARRUELA 5/32 POL LISA PRATA</td>
+                    <td><input type="text" size="7" value="2000"></td>
+                    <td>3000</td>
+                    <td>
+                      <button class="v-btn v-btn--elevated v-btn--icon v-theme--light v-btn--density-default v-btn--size-default v-btn--variant-elevated acao-secundaria" @click="abrirModalNovaCompra({
+                        codigo: 'FIX010013',
+                        descricao: 'ARRUELA 5/32 POL LISA PRATA',
+                        quantidade: 2000,
+                        estoque: 3000
+                      })">
+                        <span class="v-btn__overlay"></span>
+                        <span class="v-btn__underlay"></span>
+                        <span data-no-activator="" class="v-btn__content">
+                          <i aria-hidden="true" class="mdi-plus mdi v-icon notranslate v-theme--light v-icon--size-default"></i>
+                          Comprar
+                        </span>
+                      </button>
+                    </td>
+                    <td>
+                      <button class="v-btn v-btn--elevated v-btn--icon v-theme--light v-btn--density-default v-btn--size-default v-btn--variant-elevated acao-secundaria" @click="abrirModalNovaProducao({
+                        codigo: 'FIX010013',
+                        descricao: 'ARRUELA 5/32 POL LISA PRATA',
+                        quantidade: 2000,
+                        estoque: 3000
+                      })">
+                        <span class="v-btn__overlay"></span>
+                        <span class="v-btn__underlay"></span>
+                        <span data-no-activator="" class="v-btn__content">
+                          <i aria-hidden="true" class="mdi-plus mdi v-icon notranslate v-theme--light v-icon--size-default"></i>
+                          Produzir
+                        </span>
+                      </button>
+                    </td>
+                  </tr>
+                  <tr style="cursor: pointer;">
+                    <td>ADS010007 - BORRACHA FE 20X10 ST</td>
+                    <td><input type="text" size="7" value="2000"></td>
+                    <td>7000</td>
+                    <td>
+                      <button class="v-btn v-btn--elevated v-btn--icon v-theme--light v-btn--density-default v-btn--size-default v-btn--variant-elevated acao-secundaria" @click="abrirModalNovaCompra({
+                        codigo: 'ADS010007',
+                        descricao: 'BORRACHA FE 20X10 ST',
+                        quantidade: 2000,
+                        estoque: 7000
+                      })">
+                        <span class="v-btn__overlay"></span>
+                        <span class="v-btn__underlay"></span>
+                        <span data-no-activator="" class="v-btn__content">
+                          <i aria-hidden="true" class="mdi-plus mdi v-icon notranslate v-theme--light v-icon--size-default"></i>
+                          Comprar
+                        </span>
+                      </button>
+                    </td>
+                    <td>
+                      <button class="v-btn v-btn--elevated v-btn--icon v-theme--light v-btn--density-default v-btn--size-default v-btn--variant-elevated acao-secundaria" @click="abrirModalNovaProducao({
+                        codigo: 'ADS010007',
+                        descricao: 'BORRACHA FE 20X10 ST',
+                        quantidade: 2000,
+                        estoque: 7000
+                      })">
+                        <span class="v-btn__overlay"></span>
+                        <span class="v-btn__underlay"></span>
+                        <span data-no-activator="" class="v-btn__content">
+                          <i aria-hidden="true" class="mdi-plus mdi v-icon notranslate v-theme--light v-icon--size-default"></i>
+                          Produzir
+                        </span>
+                      </button>
+                    </td>
+                  </tr>
+                  <tr style="cursor: pointer;">
+                    <td>PRE030003 - GABARITO DE COLAGEM CENTRAL MIKE</td>
+                    <td><input type="text" size="7" value="500"></td>
+                    <td>100</td>
+                    <td>
+                      <button class="v-btn v-btn--elevated v-btn--icon v-theme--light v-btn--density-default v-btn--size-default v-btn--variant-elevated acao-secundaria" @click="abrirModalNovaCompra({
+                        codigo: 'PRE030003',
+                        descricao: 'GABARITO DE COLAGEM CENTRAL MIKE',
+                        quantidade: 500,
+                        estoque: 100
+                      })">
+                        <span class="v-btn__overlay"></span>
+                        <span class="v-btn__underlay"></span>
+                        <span data-no-activator="" class="v-btn__content">
+                          <i aria-hidden="true" class="mdi-plus mdi v-icon notranslate v-theme--light v-icon--size-default"></i>
+                          Comprar
+                        </span>
+                      </button>
+                    </td>
+                    <td>
+                      <button class="v-btn v-btn--elevated v-btn--icon v-theme--light v-btn--density-default v-btn--size-default v-btn--variant-elevated acao-secundaria" @click="abrirModalNovaProducao({
+                        codigo: 'PRE030003',
+                        descricao: 'GABARITO DE COLAGEM CENTRAL MIKE',
+                        quantidade: 500,
+                        estoque: 100
+                      })">
+                        <span class="v-btn__overlay"></span>
+                        <span class="v-btn__underlay"></span>
+                        <span data-no-activator="" class="v-btn__content">
+                          <i aria-hidden="true" class="mdi-plus mdi v-icon notranslate v-theme--light v-icon--size-default"></i>
+                          Produzir
+                        </span>
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              <div class="margem grid-3"></div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" @click="fecharModalTarefa">Fechar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Nova Compra -->
+      <div v-if="modalNovaCompraAberta" class="modal-overlay" @click="fecharModalNovaCompra">
+        <div class="modal-content" @click.stop>
+          <div class="modal-header">
+            <h3>Nova Compra</h3>
+            <button class="close-button" @click="fecharModalNovaCompra">&times;</button>
+          </div>
+          <div class="modal-body">
+            <div class="form-group">
+              <label>Número da Compra</label>
+              <input type="text" v-model="novaCompra.numero" placeholder="Número da compra">
+            </div>
+            <div class="form-group">
+              <label>Data</label>
+              <input type="date" v-model="novaCompra.data">
+            </div>
+            <div class="form-group">
+              <label>Fornecedor</label>
+              <input type="text" v-model="novaCompra.fornecedor" placeholder="Nome do fornecedor">
+            </div>
+            <div class="form-group">
+              <label>Material</label>
+              <input type="text" :value="materialSelecionado ? `${materialSelecionado.codigo} - ${materialSelecionado.descricao}` : ''" readonly>
+            </div>
+            <div class="form-group">
+              <label>Quantidade</label>
+              <input type="number" v-model="novaCompra.quantidade" :placeholder="materialSelecionado ? `Quantidade necessária: ${materialSelecionado.quantidade - materialSelecionado.estoque}` : 'Quantidade'">
+            </div>
+            <div class="form-group">
+              <label>Preço</label>
+              <input type="number" v-model="novaCompra.preco" placeholder="Preço unitário">
+            </div>
+            <div class="form-group">
+              <label>Status</label>
+              <select v-model="novaCompra.status">
+                <option value="Pendente">Pendente</option>
+                <option value="Em andamento">Em andamento</option>
+                <option value="Concluído">Concluído</option>
+              </select>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" @click="fecharModalNovaCompra">Cancelar</button>
+            <button class="btn btn-primary" @click="salvarCompra">Salvar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Nova Produção -->
+      <div v-if="modalNovaProducaoAberta" class="modal-overlay" @click="fecharModalNovaProducao">
+        <div class="modal-content" @click.stop>
+          <div class="modal-header">
+            <h3>Nova Ordem de Produção</h3>
+            <button class="close-button" @click="fecharModalNovaProducao">&times;</button>
+          </div>
+          <div class="modal-body">
+            <div class="form-group">
+              <label>Número da OP</label>
+              <input type="text" v-model="novaProducao.numero" placeholder="Número da OP">
+            </div>
+            <div class="form-group">
+              <label>Data</label>
+              <input type="date" v-model="novaProducao.data">
+            </div>
+            <div class="form-group">
+              <label>Cliente</label>
+              <input type="text" v-model="novaProducao.cliente" :value="tarefaSelecionada ? tarefaSelecionada.cliente : ''" readonly>
+            </div>
+            <div class="form-group">
+              <label>Material</label>
+              <input type="text" :value="materialSelecionado ? `${materialSelecionado.codigo} - ${materialSelecionado.descricao}` : ''" readonly>
+            </div>
+            <div class="form-group">
+              <label>Quantidade</label>
+              <input type="number" v-model="novaProducao.quantidade" :placeholder="materialSelecionado ? `Quantidade necessária: ${materialSelecionado.quantidade - materialSelecionado.estoque}` : 'Quantidade'">
+            </div>
+            <div class="form-group">
+              <label>Previsão de Entrega</label>
+              <input type="date" v-model="novaProducao.previsaoEntrega">
+            </div>
+            <div class="form-group">
+              <label>Status</label>
+              <select v-model="novaProducao.status">
+                <option value="Em andamento">Em andamento</option>
+                <option value="Concluído">Concluído</option>
+              </select>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" @click="fecharModalNovaProducao">Cancelar</button>
+            <button class="btn btn-primary" @click="salvarProducao">Salvar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </script>
+
+  <script type="text/x-template" id="expedicao-template">
+    <div v-html="expedicaoTemplate"></div>
+  </script>
+
+  <script>
+    // Carrega os templates das views
+    fetch('views/crm.html')
+      .then(response => response.text())
+      .then(html => {
+        Vue.prototype.crmTemplate = html;
+      });
+
+    fetch('views/expedicao.html')
+      .then(response => response.text())
+      .then(html => {
+        Vue.prototype.expedicaoTemplate = html;
+      });
+  </script>
+</body>
+</html> 

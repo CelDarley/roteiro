@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Oportunidades</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link href="../css/thalamus.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+  <style>
+    .container {
+      width: 100% !important;
+      max-width: none !important;
+      padding: 0 !important;
+      margin: 0 !important;
+    }
+    .margem.container {
+      width: 100% !important;
+      padding: var(--margem) !important;
+      margin: 0 !important;
+    }
+    section {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+      padding: 0;
+    }
+    .titulo {
+      width: 100%;
+      margin: 0;
+      padding: 0;
+    }
+    .titulo .margem.container {
+      display: flex;
+      align-items: center;
+      gap: var(--margem);
+      padding: var(--margem) !important;
+    }
+    .bloco {
+      width: 100%;
+      margin: 0;
+      padding: 0;
+    }
+    .bloco.margem {
+      padding: var(--margem) !important;
+    }
+    .tabela {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0;
+    }
+    .tabela th,
+    .tabela td {
+      padding: 8px;
+      text-align: left;
+      white-space: nowrap;
+      max-width: 200px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .tabela th {
+      background-color: var(--cor-primaria-fraca);
+      color: var(--cor-fonte-forte);
+    }
+    .tabela tr:hover {
+      background-color: var(--cor-primaria-fraca);
+    }
+    .abas {
+      margin: 0;
+      padding: 0;
+      display: flex;
+      gap: var(--margem);
+      margin-bottom: var(--margem);
+      position: relative;
+    }
+    .abas a {
+      border: 1px solid var(--cor-separador);
+      padding: var(--margem);
+      text-decoration: none;
+      border-radius: 12px;
+      display: inline-block;
+      color: var(--cor-fonte);
+      margin: 0;
+    }
+    .abas .ativo {
+      background-color: var(--cor-primaria);
+      color: white;
+    }
+    .alinha-direita {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: var(--margem);
+    }
+    iframe {
+      width: 2100px;
+      height: 140%;
+      border: none;
+      overflow: visible;
+    }
+  </style>
+</head>
+<body>
+  <div id="oportunidades">
+    <section>
+      <div class="titulo">
+        <div class="margem container">
+          <div class="m-icone esquerda">
+            <a class="icone-voltar m-d" title="Voltar"></a>
+          </div>
+          <h2>Oportunidades</h2>
+        </div>
+      </div>
+      <div class="abas">
+        <a class="ativo">Oportunidades</a>
+        <a @click="irParaKanban">Kanban</a>
+      </div>
+      <div class="margem container">
+      
+        <div class="bloco margem">
+          <div class="alinha-direita">
+            <button 
+              type="button" 
+              class="v-btn v-btn--elevated v-btn--icon v-theme--light v-btn--density-default v-btn--size-default v-btn--variant-elevated acao-secundaria" 
+              @click="abrirModal"
+            >
+              <span class="v-btn_overlay"></span>
+              <span class="v-btnunderlay"></span>
+              <span class="v-btn_content" data-no-activator="">
+                <i class="mdi-plus mdi v-icon notranslate v-theme--light v-icon--size-default" aria-hidden="true"></i>
+                <span>Nova oportunidade</span>
+              </span>
+            </button>
+          </div>
+          <table class="tabela">
+            <thead>
+              <tr>
+                <th>Nº Oportunidade</th>
+                <th>CNPJ</th>
+                <th>Cliente</th>
+                <th>Criação oportunidade</th>
+                <th>Fase</th>
+                <th>Conclusão oportunidade</th>
+                <th>Proposta Comercial</th>
+                <th>Aprovação Proposta Comercial</th>
+                <th>Previsão Entrega Cliente</th>
+                <th>NF</th>
+                <th>Emissão NF</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="oportunidade in oportunidades" :key="oportunidade.numero">
+                <td>{{ oportunidade.numero }}</td>
+                <td>{{ oportunidade.cnpj }}</td>
+                <td>{{ oportunidade.cliente }}</td>
+                <td>{{ oportunidade.criacao }}</td>
+                <td>{{ oportunidade.fase }}</td>
+                <td>{{ oportunidade.conclusao }}</td>
+                <td>{{ oportunidade.proposta }}</td>
+                <td>{{ oportunidade.aprovacao }}</td>
+                <td>{{ oportunidade.previsaoEntrega }}</td>
+                <td>{{ oportunidade.nf }}</td>
+                <td>{{ oportunidade.emissaoNf }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    new Vue({
+      el: '#oportunidades',
+      data: {
+        oportunidades: [
+          {
+            numero: 'OPT250457',
+            cnpj: '03.923.437/0002-76',
+            cliente: 'VELAPLAST',
+            criacao: '14/03/2025',
+            fase: 'Conquistado',
+            conclusao: '10/04/2025',
+            proposta: '453400',
+            aprovacao: '08/04/2025',
+            previsaoEntrega: '08/05/2025',
+            nf: '00003456',
+            emissaoNf: '12/05/2025'
+          },
+          {
+            numero: 'OPT250456',
+            cnpj: '24.021.677/0012-27',
+            cliente: 'COOPERATIVA DOS PRODUTORES RURAIS DO PRATA LTDA',
+            criacao: '14/03/2025',
+            fase: 'Conquistado',
+            conclusao: '10/04/2025',
+            proposta: '453400',
+            aprovacao: '08/04/2025',
+            previsaoEntrega: '08/05/2025',
+            nf: '00003456',
+            emissaoNf: '12/05/2025'
+          }
+        ]
+      },
+      methods: {
+        irParaKanban() {
+          window.location.href = 'kanban-oportunidade.html';
+        }
+      }
+    });
+  </script>
+</body>
+</html> 

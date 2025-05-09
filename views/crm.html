@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <link href="../css/thalamus.css" rel="stylesheet" type="text/css"/>
+        <style>
+            body {
+                margin: 0;
+                padding: 0;
+                width: 100%;
+                overflow-x: hidden;
+            }
+            .container {
+                width: 100% !important;
+                max-width: 100% !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                box-sizing: border-box;
+            }
+            .margem.container {
+                width: 100% !important;
+                padding: var(--margem) !important;
+                margin: 0 !important;
+                box-sizing: border-box;
+            }
+            .card {
+                width: 100%;
+                box-sizing: border-box;
+            }
+            .bloco {
+                width: 100%;
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+            .bloco.margem {
+                padding: var(--margem) !important;
+                box-sizing: border-box;
+            }
+            .setor-listbox {
+                width: 100%;
+                box-sizing: border-box;
+                border: 1px solid var(--cor-separador);
+                border-radius: 4px;
+                background-color: var(--cor-bg);
+                color: var(--cor-texto);
+                font-size: 1em;
+                padding: 8px;
+                cursor: pointer;
+                margin: 5px 0;
+            }
+            .setor-listbox:hover {
+                background-color: var(--cor-primaria-fraca);
+            }
+            .servico-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 20px;
+                box-sizing: border-box;
+            }
+            .servico-table th, .servico-table td {
+                padding: 10px;
+                border: 1px solid var(--cor-separador);
+                text-align: left;
+            }
+            .servico-table th {
+                background-color: var(--cor-primaria-fraca);
+            }
+            .acao-btn {
+                cursor: pointer;
+                color: var(--cor-erro);
+            }
+            .modal {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0,0,0,0.5);
+            }
+            .modal-content {
+                background-color: var(--cor-bg);
+                margin: 15% auto;
+                padding: 20px;
+                width: 70%;
+                border-radius: 5px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container margem">
+            <div class="card bloco margem">
+                <h2>CST0410031 - Case Magnetica XPTO</h2>
+            </div>
+            
+            <div class="card bloco margem">
+                <h3>Setores</h3>
+                <select class="setor-listbox" onchange="selecionarSetor(this.value)">
+                    <option value="">Selecione um setor</option>
+                    <option value="Montagem">Montagem</option>
+                    <option value="Usinagem">Usinagem</option>
+                    <option value="Pintura">Pintura</option>
+                </select>
+            </div>
+
+            <div id="setores-container">
+                <!-- Os blocos de setores serão inseridos aqui -->
+            </div>
+        </div>
+
+        <!-- Modal -->
+        <div id="servicoModal" class="modal">
+            <div class="modal-content">
+                <h2>Detalhes do Serviço</h2>
+                <p>Conteúdo do modal aqui...</p>
+                <button onclick="fecharModal()">Fechar</button>
+            </div>
+        </div>
+
+        <script>
+            function criarBlocoSetor(setor) {
+                const container = document.getElementById('setores-container');
+                const blocoId = 'setor-' + setor.toLowerCase();
+                
+                // Verifica se já existe um bloco para este setor
+                if (document.getElementById(blocoId)) {
+                    return;
+                }
+
+                const bloco = document.createElement('div');
+                bloco.id = blocoId;
+                bloco.className = 'card bloco margem';
+                
+                bloco.innerHTML = `
+                    <h2>${setor}</h2>
+                    <table class="servico-table">
+                        <thead>
+                            <tr>
+                                <th>Código</th>
+                                <th>Descrição</th>
+                                <th>Ação</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr onclick="abrirModal()">
+                                <td>001</td>
+                                <td>Cortar cabo na ponta</td>
+                                <td class="acao-btn">×</td>
+                            </tr>
+                            <tr onclick="abrirModal()">
+                                <td>002</td>
+                                <td>Fixar parafuso no pino</td>
+                                <td class="acao-btn">×</td>
+                            </tr>
+                            <tr onclick="abrirModal()">
+                                <td>003</td>
+                                <td>Cortar ponta do inserto</td>
+                                <td class="acao-btn">×</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                `;
+                
+                container.appendChild(bloco);
+            }
+
+            function selecionarSetor(setor) {
+                if (setor) {
+                    criarBlocoSetor(setor);
+                }
+            }
+
+            function abrirModal() {
+                document.getElementById('servicoModal').style.display = 'block';
+            }
+
+            function fecharModal() {
+                document.getElementById('servicoModal').style.display = 'none';
+            }
+
+            // Fechar modal quando clicar fora dele
+            window.onclick = function(event) {
+                if (event.target == document.getElementById('servicoModal')) {
+                    fecharModal();
+                }
+            }
+        </script>
+    </body>
+</html> 

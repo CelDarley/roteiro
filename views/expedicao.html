@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Expedição</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link href="../css/thalamus.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+  <style>
+    main {
+      margin: 0 auto;
+      max-width: 2100px;
+      padding: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div id="expedicao">
+    <section>
+      <div class="titulo">
+        <div class="margem container">
+          <div class="m-icone esquerda">
+            <a class="icone-voltar m-d" title="Voltar"></a>
+          </div>
+          <h2>Expedição</h2>
+        </div>
+      </div>
+      <main>
+        <div class="bloco margem" style="width: 150%; max-width: 2100px; margin: 0 auto;">
+          <div style="text-align: center;">
+            <a>
+              <h3>
+                <button class="acao-secundaria" style="margin: 0 auto; display: block;">Propostas comerciais</button>
+              </h3>
+            </a>
+          </div>
+
+          <h3></h3>
+
+          <table class="tabela" style="width: 100%; border-collapse: collapse;">
+            <thead>
+              <tr>
+                <th scope="col" style="white-space: nowrap;">Proposta Comercial</th>
+                <th scope="col" style="white-space: nowrap;">Cliente</th>
+                <th scope="col" style="white-space: nowrap;">Prev. Entrega Cliente</th>
+                <th scope="col" style="white-space: nowrap;">Cod. Produto</th>
+                <th scope="col" style="white-space: nowrap;">Descrição do Produto</th>
+                <th scope="col" style="white-space: nowrap;">Quantidade</th>
+                <th scope="col" style="white-space: nowrap;">Qte Reservada</th>
+                <th scope="col" style="white-space: nowrap;">Quant. Produzir</th>
+                <th scope="col" style="white-space: nowrap;">OP</th>
+                <th scope="col" style="white-space: nowrap;">Prev. de Conclusão</th>
+                <th scope="col" style="white-space: nowrap;">Data Conclusão</th>
+                <th scope="col" style="white-space: nowrap;">Situação</th>
+                <th scope="col" style="white-space: nowrap;">NF</th>
+                <th scope="col" style="white-space: nowrap;">Data de Emissão da NF</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td rowspan="3">000451</td>
+                <td rowspan="3">Cofermeta Sa</td>
+                <td rowspan="3">09/04/2025</td>
+                <td>CST040003</td>
+                <td>Base X 1,5 Pol. - SOLINFTEC</td>
+                <td>2500</td>
+                <td>1000</td>
+                <td>1500</td>
+                <td>OP4450</td>
+                <td>10/04/2025</td>
+                <td>09/04/2025</td>
+                <td>Concluido</td>
+                <td rowspan="3"><input type="text" value="12345"></td>
+                <td rowspan="3">08/04/2025</td>
+              </tr>
+              <tr>
+                <td>CST040003</td>
+                <td>Braço 95mm - 1,5 Pol. - SOLINFTEC</td>
+                <td>2500</td>
+                <td>1000</td>
+                <td>1500</td>
+                <td>OP4451</td>
+                <td>10/04/2025</td>
+                <td>09/04/2025</td>
+                <td>Concluido</td>
+              </tr>
+              <tr>
+                <td>CST040003</td>
+                <td>Base Ventosa Tripla C Fiber Montada</td>
+                <td>2500</td>
+                <td>1000</td>
+                <td>1500</td>
+                <td>OP4453</td>
+                <td>10/04/2025</td>
+                <td>09/04/2025</td>
+                <td>Concluido</td>
+              </tr>
+              <tr>
+                <td>000587</td>
+                <td>Solinfitec</td>
+                <td>09/04/2025</td>
+                <td>CST040003</td>
+                <td>Caso X115 Magnética</td>
+                <td>70</td>
+                <td>0</td>
+                <td>70</td>
+                <td>OP4450</td>
+                <td>10/04/2025</td>
+                <td>09/04/2025</td>
+                <td>Em Produção</td>
+                <td><input type="text" value="12348"></td>
+                <td>08/04/2025</td>
+              </tr>
+              <tr>
+                <td>000472</td>
+                <td>Gerdal SA</td>
+                <td>09/04/2025</td>
+                <td>CST040007</td>
+                <td>Case A9 Magnética</td>
+                <td>2500</td>
+                <td>1000</td>
+                <td>1500</td>
+                <td>OP4453</td>
+                <td>10/04/2025</td>
+                <td>09/04/2025</td>
+                <td>Em Produção</td>
+                <td><input type="text" value="12348"></td>
+                <td>08/04/2025</td>
+              </tr>
+              <tr>
+                <td>000574</td>
+                <td>Solinfitec</td>
+                <td>09/04/2025</td>
+                <td>CST040007</td>
+                <td>Case A9 Magnética</td>
+                <td>110</td>
+                <td>0</td>
+                <td>110</td>
+                <td>OP4453</td>
+                <td>10/04/2025</td>
+                <td>09/04/2025</td>
+                <td>Em Produção</td>
+                <td><input type="text" value="12348"></td>
+                <td>08/04/2025</td>
+              </tr>
+              <tr>
+                <td>ESTOQUE</td>
+                <td>ALMOX</td>
+                <td>01/04/2025</td>
+                <td>BSE400050</td>
+                <td>Base adesiva</td>
+                <td>1500</td>
+                <td>0</td>
+                <td>1500</td>
+                <td>OP4524</td>
+                <td>10/04/2025</td>
+                <td>09/04/2025</td>
+                <td>Finalizado</td>
+                <td><input type="text" value="12348"></td>
+                <td>08/04/2025</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </main>
+    </section>
+  </div>
+
+  <script>
+    new Vue({
+      el: '#expedicao',
+      data: {
+        // Dados da view podem ser adicionados aqui se necessário
+      }
+    });
+  </script>
+</body>
+</html> 

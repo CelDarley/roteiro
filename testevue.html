@@ -1,0 +1,1669 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Kanban Produção com Modal (Vue 2)</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link href="css/thalamus.css" rel="stylesheet">
+  <style>
+    body { background: var(--cor-bg); margin: 0; }
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(0,0,0,0.5);
+      display: flex; justify-content: center; align-items: flex-start;
+      z-index: 9999;
+      overflow-y: auto;
+      padding: 20px 0;
+    }
+    .modal-content {
+      background: var(--cor-bg);
+      padding: var(--margem);
+      border-radius: 12px;
+      width: 90%;
+      max-width: 1200px;
+      position: relative;
+      box-shadow: 0 2px 16px var(--cor-cinza);
+      animation: modalIn 0.2s;
+      margin: 20px auto;
+      max-height: none;
+      overflow-y: visible;
+    }
+    .modal-content.bloco {
+      max-height: none;
+      overflow-y: visible;
+    }
+    .modal-close {
+      position: absolute;
+      top: 10px; right: 10px;
+      background: transparent;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: var(--cor-fonte);
+    }
+    @keyframes modalIn {
+      from { transform: scale(0.95); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    .btn-abrir-modal {
+      padding: 12px var(--margem);
+      background: var(--cor-primaria);
+      color: var(--cor-bg);
+      border: none;
+      border-radius: 24px;
+      cursor: pointer;
+      margin: var(--margem) 0;
+      font-weight: 700;
+    }
+    .abas {
+      margin: 0;
+      padding: 0;
+      display: flex;
+      gap: 5px;
+      margin-bottom: var(--margem);
+      position: relative;
+    }
+    .abas a {
+      border: 1px solid var(--cor-separador);
+      padding: 10px;
+      text-decoration: none;
+      border-radius: 12px;
+      display: inline-block;
+      color: var(--cor-fonte);
+      margin: 0;
+    }
+    .abas .ativo {
+      background-color: var(--cor-primaria-fraca);
+      color: var(--cor-primaria-forte);
+    }
+    .kanban-container {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      position: relative;
+      display: block;
+    }
+    .kanban-board {
+      min-height: 27vw;
+      display: flex;
+      flex-direction: row;
+      gap: var(--margem);
+      width: 100%;
+      margin: 0;
+      padding: 0;
+      overflow-x: auto;
+      align-items: flex-start;
+      position: relative;
+      top: 0;
+      left: 0;
+    }
+    .colunaKanban {
+      border: 1px solid var(--cor-separador);
+      border-radius: 12px;
+      width: 300px;
+      min-height: 400px;
+      text-align: center;
+      padding: var(--margem);
+      background: var(--cor-bg);
+      flex-shrink: 0;
+      margin: 0;
+      position: relative;
+      top: 0;
+      left: 0;
+    }
+    .colunaKanban:first-child {
+      margin-top: 25px;
+    }
+    .colunaKanban h3 {
+      margin-top: 0;
+      color: var(--cor-fonte-forte);
+    }
+    .container {
+      max-width: none;
+      width: 100%;
+      padding: var(--margem);
+      overflow-x: hidden;
+      position: relative;
+      display: block;
+    }
+    .margem.container {
+      padding: var(--margem);
+      margin: 0;
+      display: block;
+    }
+    .containerTarefa {
+      margin-top: var(--margem);
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .tarefa {
+      border: 1px solid var(--cor-separador);
+      border-radius: 12px;
+      padding: var(--margem);
+      margin: var(--margem) auto;
+      text-align: left;
+      box-sizing: border-box;
+      background: var(--cor-bg);
+      cursor: move;
+      transition: box-shadow 0.2s, transform 0.2s;
+    }
+    .tarefa:hover {
+      box-shadow: 0 2px 8px var(--cor-primaria-fraca);
+      background: var(--cor-primaria-fraca);
+      transform: translateY(-2px);
+    }
+    .ghost {
+      opacity: 0.5;
+      background: var(--cor-primaria-fraca);
+    }
+    .sortable-ghost {
+      opacity: 0.5;
+      background: var(--cor-primaria-fraca);
+    }
+    .rodapeTarefa {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-top: var(--margem);
+    }
+    @media (max-width: 1200px) {
+      .kanban-board { 
+        flex-wrap: nowrap;
+      }
+      .colunaKanban { 
+        width: 300px;
+      }
+    }
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 1rem;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: #4CAF50;
+      box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
+    }
+
+    .grid-2, .grid-3 {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .grid-2 {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .grid-3 {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .margem {
+      margin: 1rem 0;
+    }
+
+    .btn {
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 1rem;
+      margin-right: 0.5rem;
+    }
+
+    .btn-primary {
+      background-color: #4CAF50;
+      color: white;
+    }
+
+    .btn-secondary {
+      background-color: #f44336;
+      color: white;
+    }
+
+    .btn:hover {
+      opacity: 0.9;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <main id="main">
+      <aside>
+        <div>
+          <div class="titulo margem efeito">
+            <div class="m-icone">
+              <a
+                href="#"
+                class="icone-menu"
+                title="Menu"
+                @click.prevent="toggleMenu"
+              ></a>
+            </div>
+          </div>
+          <nav class="nav-maior separador">
+            <a aria-current="page" href="#/" class="router-link-exact-active">Fluxo de Atendimento ao Cliente</a>
+            <a href="#/indicadores">Indicadores</a>
+          </nav>
+          <nav class="nav-maior separador">
+            <a href="#/crm" @click="showCRM" :class="{ 'ativo': currentView === 'crm' }">CRM</a>
+            <a href="#/vendas" @click="showVendas" :class="{ 'ativo': currentView === 'vendas' }">Vendas</a>
+            <a href="#/producao">Produção</a>
+            <a href="#/expedicao">Expedição</a>
+          </nav>
+          <nav class="nav-maior separador"></nav>
+        </div>
+      </aside>
+      <section v-if="currentView === 'crm'">
+        <div class="titulo">
+          <div class="margem container">
+            <div class="m-icone esquerda">
+              <a class="icone-voltar m-d" title="Voltar"></a>
+            </div>
+            <h2>CRM</h2>
+          </div>
+        </div>
+        <div class="margem container">
+          <div class="bloco margem">
+            <div class="alinha-direita">
+              <button 
+                type="button" 
+                class="v-btn v-btn--elevated v-btn--icon v-theme--light v-btn--density-default v-btn--size-default v-btn--variant-elevated acao-secundaria" 
+                @click="abrirModalNovaOportunidade"
+              >
+                <span class="v-btn_overlay"></span>
+                <span class="v-btnunderlay"></span>
+                <span class="v-btn_content" data-no-activator="">
+                  <i class="mdi-plus mdi v-icon notranslate v-theme--light v-icon--size-default" aria-hidden="true"></i>
+                  <span>Nova oportunidade</span>
+                </span>
+              </button>
+            </div>
+            <table class="tabela">
+              <tbody>
+                <tr>
+                  <th>Nº Oportunidade</th>
+                  <th>CNPJ</th>
+                  <th>Cliente</th>
+                  <th>Criação oportunidade</th>
+                  <th>Fase</th>
+                  <th>Conclusão oportunidade</th>
+                  <th>Proposta Comercial</th>
+                  <th>Aprovação Proposta Comercial</th>
+                  <th>Previsão Entrega Cliente</th>
+                  <th>NF</th>
+                  <th>Emissão NF</th>
+                </tr>
+                <tr>
+                  <td>OPT250457</td>
+                  <td>03.923.437/0002-76</td>
+                  <td title="INDUSTRIA E COMERCIO DE ARTEFATOS PLASTICOS VELAPLAST LTDA">VELAPLAST</td>
+                  <td>14/03/2025</td>
+                  <td>Conquistado</td>
+                  <td>10/04/2025</td>
+                  <td>453400</td>
+                  <td>08/04/2025</td>
+                  <td>08/05/2025</td>
+                  <td>00003456</td>
+                  <td>12/05/2025</td>
+                </tr>
+                <tr>
+                  <td>OPT250456</td>
+                  <td>24.021.677/0012-27</td>
+                  <td>COOPERATIVA DOS PRODUTORES RURAIS DO PRATA LTDA</td>
+                  <td>14/03/2025</td>
+                  <td>Conquistado</td>
+                  <td>10/04/2025</td>
+                  <td>453400</td>
+                  <td>08/04/2025</td>
+                  <td>08/05/2025</td>
+                  <td>00003456</td>
+                  <td>12/05/2025</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <!-- Modal Nova Oportunidade -->
+        <div v-if="modalNovaOportunidadeAberta" class="modal-overlay" @click.self="fecharModalNovaOportunidade">
+
+    
+            <div class="bloco">
+              <header class="alinha-centro bg-ok">
+                <h2>Nova Oportunidade</h2>
+              </header>
+              <div class="margem">
+                <fieldset class="margem grid-4">
+                  <div>
+                    <label>Nº Oportunidade</label>
+                    <input type="text" readonly="readonly">
+                  </div>
+                  <div>
+                    <label>Data de Criação</label>
+                    <input type="date" readonly="readonly">
+                  </div>
+                  <div class="col-2">
+                    <label>Cliente</label>
+                    <div class="alinha-v">
+                      <input type="text" placeholder="CNPJ" style="margin-right: 3px;">
+                      <select style="margin-left: 3px;">
+                        <option hidden="hidden"></option>
+                      </select>
+                      <i title="Cadastrar Cliente" class="bi bi-person-plus-fill" style="margin-left: 0.5rem; color: var(--cor-fonte); font-size: 20px;"></i>
+                    </div>
+                  </div>
+                  <div class="col-2">
+                    <label>Contato</label>
+                    <div style="display: flex; align-items: center;">
+                      <input type="text" value="André Andreata" style="margin-right: 8px;">
+                      <i title="Cadastrar Cliente" class="bi bi-person-plus-fill" style="color: var(--cor-fonte); font-size: 20px;"></i>
+                    </div>
+                  </div>
+                  <div class="col-2">
+                    <label>Vendedor</label>
+                    <div class="alinha-v">
+                      <select style="margin-left: 3px;">
+                        <option hidden="hidden"></option>
+                      </select>
+                    </div>
+                  </div>
+                  <div>
+                    <label>Fase atual</label>
+                    <div class="alinha-v">
+                      <select>
+                        <option>Prospect+lead</option>
+                        <option>Desenvolvimento</option>
+                        <option>Elaboração</option>
+                        <option>Conquistado</option>
+                      </select>
+                      <i class="bi bi-circle-fill" style="margin-left: 1rem; color: white;"></i>
+                    </div>
+                  </div>
+                  <div>
+                    <label>Status</label>
+                    <div class="alinha-v">
+                      <select>
+                        <option selected="selected">Ativo</option>
+                        <option>Suspenso</option>
+                        <option>Cancelado</option>
+                      </select>
+                      <i class="bi bi-circle-fill" style="margin-left: 1rem; color: white;"></i>
+                    </div>
+                  </div>
+                  <div>
+                    <label>Temperatura</label>
+                    <div class="alinha-v">
+                      <select style="background-color: rgb(255, 167, 38);">
+                        <option value="20%" style="background-color: rgb(255, 235, 59);">Frio</option>
+                        <option value="40%" style="background-color: rgb(255, 167, 38);">Morno</option>
+                        <option value="60%" style="background-color: rgb(255, 112, 67);">Quente</option>
+                      </select>
+                      <i class="bi bi-circle-fill" style="margin-left: 1rem; color: white;"></i>
+                    </div>
+                  </div>
+                  <div>
+                    <label>Previsão de fechamento</label>
+                    <div class="alinha-v">
+                      <input type="date">
+                      <i class="bi bi-circle-fill" style="margin-left: 1rem; color: white;"></i>
+                    </div>
+                  </div>
+                  <div style="grid-column: 1 / span 4; width: 100%;">
+                    <label>Problema apresentado</label>
+                    <textarea style="display: block; width: 100%; box-sizing: border-box;"></textarea>
+                  </div>
+                </fieldset>
+
+                <h3>Solução Proposta e observações gerais</h3>
+                <div class="margem bloco2">
+                  <fieldset class="grid-3">
+                    <div style="position: absolute; justify-self: end;">
+                      <i title="Remover Evolução" class="bi bi-x-circle"></i>
+                    </div>
+                    <div>
+                      <label>Data da Atualização</label>
+                      <input type="date">
+                    </div>
+                    <div class="col-2">
+                      <label>Solução Final Atualizada</label>
+                      <textarea></textarea>
+                    </div>
+                  </fieldset>
+                  <div class="submit">
+                    <button class="acao-secundaria">Adicionar</button>
+                  </div>
+                </div>
+
+                <h3>Orçamentos encaminhados</h3>
+                <div data-v-487991f2="" class="margem bloco2">
+                  <fieldset data-v-487991f2="" class="grid-3" style="display: flex; align-items: center; gap: 1rem;">
+                      <div data-v-487991f2="" style="flex: 1; display: flex; flex-direction: column;">
+                          <label data-v-487991f2="">Proposta</label>
+                          <input type="text" value="PC5054">
+                      </div>
+                      <div data-v-487991f2="" style="width: 120px; display: flex; flex-direction: column;">
+                          <label data-v-487991f2="">Aprovada</label>
+                          <label class="switch" style="position: relative; display: inline-block; width: 60px; height: 34px;">
+                              <input type="checkbox" style="opacity: 0; width: 0; height: 0;">
+                              <span style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px;">
+                                  <span style="position: absolute; content: ''; height: 26px; width: 26px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%;"></span>
+                              </span>
+                          </label>
+                      </div>
+                      <div data-v-487991f2="" style="flex: 2; display: flex; flex-direction: column;">
+                          <label data-v-487991f2="">Data de entrega ao Cliente</label>
+                          <input data-v-487991f2="" type="date" style="opacity: 0.6;background-color: #f5f5f5">
+                      </div>
+                      <div data-v-487991f2="" style="display: flex; align-items: center; padding-top: 24px;">
+                          <i data-v-487991f2="" class="bi bi-x-circle" title="Remover Evolução" style="cursor: pointer;"></i>
+                      </div>
+                  </fieldset>
+              
+                  <fieldset data-v-487991f2="" class="grid-3" style="display: flex; align-items: center; gap: 1rem;">
+                      <div data-v-487991f2="" style="flex: 1; display: flex; flex-direction: column;">
+                          <label data-v-487991f2="">Proposta</label>
+                          <input type="text" value="PC5054">
+                      </div>
+                      <div data-v-487991f2="" style="width: 120px; display: flex; flex-direction: column;">
+                          <label data-v-487991f2="">Aprovada</label>
+                          <label class="switch" style="position: relative; display: inline-block; width: 60px; height: 34px;">
+                              <input type="checkbox" style="opacity: 0; width: 0; height: 0;">
+                              <span style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px;">
+                                  <span style="position: absolute; content: ''; height: 26px; width: 26px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%;"></span>
+                              </span>
+                          </label>
+                      </div>
+                      <div data-v-487991f2="" style="flex: 2; display: flex; flex-direction: column;">
+                          <label data-v-487991f2="">Data de entrega ao Cliente</label>
+                          <input data-v-487991f2="" type="date" style="opacity: 0.6;background-color: #f5f5f5">
+                      </div>
+                      <div data-v-487991f2="" style="display: flex; align-items: center; padding-top: 24px;">
+                          <i data-v-487991f2="" class="bi bi-x-circle" title="Remover Evolução" style="cursor: pointer;"></i>
+                      </div>
+                  </fieldset>
+              
+                  <fieldset data-v-487991f2="" class="grid-3" style="display: flex; align-items: center; gap: 1rem;">
+                      <div data-v-487991f2="" style="flex: 1; display: flex; flex-direction: column;">
+                          <label data-v-487991f2="">Proposta</label>
+                          <input type="text" value="PC5054" style="opacity: 0.6; background-color: #f5f5f5;">
+                      </div>
+                      <div data-v-487991f2="" style="width: 120px; display: flex; flex-direction: column;">
+                          <label data-v-487991f2="">Aprovada</label>
+                          <label class="switch" style="position: relative; display: inline-block; width: 60px; height: 34px;">
+                              <input type="checkbox" style="opacity: 0; width: 0; height: 0;" checked="" disabled="">
+                              <span style="position: absolute; cursor: not-allowed; top: 0; left: 0; right: 0; bottom: 0; background-color: #2196F3; transition: .4s; border-radius: 34px;">
+                                  <span style="position: absolute; content: ''; height: 26px; width: 26px; left: 30px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%;"></span>
+                              </span>
+                          </label>
+                      </div>
+                      <div data-v-487991f2="" style="flex: 2; display: flex; flex-direction: column;">
+                          <label data-v-487991f2="">Data de entrega ao Cliente</label>
+                          <input data-v-487991f2="" type="date">
+                      </div>
+                      <div data-v-487991f2="" style="display: flex; align-items: center; padding-top: 24px;">
+                          <i data-v-487991f2="" class="bi bi-x-circle" title="Remover Evolução" style="cursor: pointer; opacity: 0.6;"></i>
+                      </div>
+                  </fieldset>
+              
+                  <div data-v-487991f2="" class="submit">
+                      <button data-v-487991f2="" class="acao-secundaria">Adicionar</button>
+                  </div>
+              </div>
+
+                <h3>Tarefas</h3>
+                <table class="tabela">
+                  <tbody>
+                    <tr>
+                      <th>Nr</th>
+                      <th>Descrição</th>
+                      <th>H.P.</th>
+                      <th>Responsável</th>
+                      <th>Inicio Previsto</th>
+                      <th>Fim Previsto</th>
+                      <th>Status</th>
+                      <th></th>
+                      <th></th>
+                    </tr>
+                    <tr>
+                      <td>Tar.-8</td>
+                      <td style="min-width: 14rem; max-width: 14rem; justify-content: center;">
+                        <input type="text" title="Testar o braço fixo com as novas " style="width: 100%; overflow: hidden; text-overflow: ellipsis; border: none;">
+                      </td>
+                      <td>
+                        <select class="HP" style="width: 2.5rem; height: 2.5rem; text-align: center; border-radius: 50%; padding: 0px; opacity: 1;">
+                          <option hidden="hidden">0</option>
+                          <option>1</option>
+                          <option>2</option>
+                          <option>3</option>
+                          <option>5</option>
+                          <option>8</option>
+                          <option>13</option>
+                          <option>21</option>
+                          <option>34</option>
+                          <option>55</option>
+                          <option>89</option>
+                          <option>144</option>
+                          <option>233</option>
+                        </select>
+                      </td>
+                      <td>
+                        <select>
+                          <option hidden="hidden"></option>
+                          <option value="7">Darley Wilson Dias</option>
+                          <option value="46">Paulo Rubens Salerno Del Menezzi Vicari</option>
+                          <option value="3">Mariana Mozzer Arantes</option>
+                        </select>
+                      </td>
+                      <td>
+                        <input type="date" style="background-color: transparent; cursor: pointer; width: 7rem; text-align: left; padding-inline: 0rem; border: none; opacity: 1;">
+                      </td>
+                      <td>
+                        <input type="date" style="background-color: transparent; cursor: pointer; width: 7rem; text-align: left; padding-inline: 0rem; border: none; opacity: 1;">
+                      </td>
+                      <td style="padding: 0px;">
+                        <div style="display: flex; justify-content: center;">
+                          <div style="position: relative;">
+                            <div role="progressbar" aria-hidden="false" aria-valuemin="0" aria-valuemax="100" aria-valuenow="25" class="v-progress-linear v-progress-linear--active v-theme--light v-locale--is-ltr" style="top: 0px; height: 2rem; --v-progress-linear-height: 4px; border: 1px solid var(--cor-fonte-fraca); border-radius: 25px; width: 12rem;">
+                              <div class="v-progress-linear_background" style="background-color: var(--cor-ok);"></div>
+                              <div class="v-progress-linearbuffer" style="background-color: var(--cor-ok); width: 0%;"></div>
+                              <div class="v-progress-lineardeterminate" style="background-color: var(--cor-ok); width: 25%;"></div>
+                            </div>
+                            <select title="Em andamento 25%" style="color: black; opacity: 1; border: none; padding-left: 0.5rem; position: absolute; top: 0px; left: 0rem; outline: none; border-radius: 25px; height: 2rem; width: 12rem; text-align: center; background-color: transparent; padding-top: 0rem; padding-bottom: 0rem;">
+                              <option hidden="hidden" value=""></option>
+                              <option value="Pendente" style="color: rgb(255, 145, 0);"> A iniciar</option>
+                              <option value="Em andamento" style="color: rgb(0, 47, 255);"> Em andamento 0%</option>
+                              <option style="color: rgb(0, 47, 255);"> Em andamento 25% </option>
+                              <option style="color: rgb(0, 47, 255);"> Em andamento 50% </option>
+                              <option style="color: rgb(0, 47, 255);"> Em andamento 75% </option>
+                              <option style="color: rgb(0, 192, 0);"> Concluído </option>
+                            </select>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+                <div class="bloco2 margem">
+                  <div class="alinha-v">
+                    <button title="Mais" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="v-menu-7" class="v-btn v-btn--elevated v-btn--icon v-theme--light v-btn--density-default v-btn--size-default v-btn--variant-elevated acao-secundaria" style="transform: scale(0.7);">
+                      <span class="v-btn_overlay"></span>
+                      <span class="v-btnunderlay"></span>
+                      <span data-no-activator="" class="v-btn_content">
+                        <i aria-hidden="true" class="mdi-plus mdi v-icon notranslate v-theme--light v-icon--size-default"></i>
+                      </span>
+                    </button>
+                    <input type="file" style="display: none;">
+                    <div style="display: flex; padding-left: 0.2rem; border-radius: 5px; width: 100%; align-content: center; gap: 5px;">
+                      <input type="text" placeholder="O que será feito?" class="input-comentario" style="height: 3rem; margin: 0px 0px 0px 5px;">
+                    </div>
+                  </div>
+                </div>
+                <div class="direita margem alinha-v">
+                  <div class="tags">
+                    <a>Salvar</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          
+        </div>
+      </section>
+      <section v-else-if="currentView === 'vendas'">
+        <div class="titulo">
+          <div class="margem container">
+            <div class="m-icone direita">
+              <div class="pesquisa">
+                <input type="text" placeholder="Pesquise aqui">
+                <a class="icone-pesquisa" title="Pesquise"></a>
+              </div>
+            </div>
+            <h2>Proposta Comercial</h2>
+          </div>
+        </div>
+        <div class="margem container">
+          <br>
+          <div class="bloco margem">
+            <div class="alinha-v" style="display: flex; justify-content: space-between;">
+              <div title="Clique aqui para adicionar"></div>
+            </div>
+            <br>
+            <button type="button" class="v-btn v-btn--elevated v-btn--icon v-theme--light v-btn--density-default v-btn--size-default v-btn--variant-elevated acao-secundaria">
+              <span class="v-btn_overlay"></span>
+              <span class="v-btnunderlay"></span>
+              <span class="v-btn_content" data-no-activator="">
+                <i class="mdi-plus mdi v-icon notranslate v-theme--light v-icon--size-default" aria-hidden="true"></i>
+              </span>
+            </button>
+            <table class="tabela">
+              <tbody>
+                <tr>
+                  <th scope="col" style="white-space: nowrap;">
+                    <span style="cursor: pointer;">Proposta comercial</span>
+                    <i class="fa-solid fa-caret-up" id="setaCimaProdutoCod" style="display: none;"></i>
+                    <i class="fa-solid fa-caret-down" id="setaBaixoProdutoCod" style="display: none;"></i>
+                  </th>
+                  <th scope="col" style="white-space: nowrap;">
+                    <span style="cursor: pointer;">Oportunidade</span>
+                    <i class="fa-solid fa-caret-up" id="setaCimaDesc" style="display: none;"></i>
+                    <i class="fa-solid fa-caret-down" id="setaBaixoDesc" style="display: none;"></i>
+                  </th>
+                  <th scope="col" style="white-space: nowrap;">
+                    <span style="cursor: pointer;">Cliente</span>
+                    <i class="fa-solid fa-caret-up" id="setaCimaTipo" style="display: none;"></i>
+                    <i class="fa-solid fa-caret-down" id="setaBaixoTipo" style="display: none;"></i>
+                  </th>
+                  <th scope="col" style="white-space: nowrap;">
+                    <span style="cursor: pointer;">Criação proposta</span>
+                    <i class="fa-solid fa-caret-up" id="setaCimaFamiliaProduto" style="display: none;"></i>
+                    <i class="fa-solid fa-caret-down" id="setaBaixoFamiliaProduto" style="display: none;"></i>
+                  </th>
+                  <th style="text-align: center;">Status da proposta</th>
+                  <th style="text-align: center;">Aprovação</th>
+                  <th style="text-align: center;">Previsão de entrega</th>
+                  <th style="text-align: center; background-color: rgba(255, 0, 0, 0.1);">NF</th>
+                  <th style="text-align: center; background-color: rgba(255, 0, 0, 0.1);">Data Emissão</th>
+                </tr>
+                <tr style="cursor: pointer;" @click="selecionarProposta('PC 50050')">
+                  <td>PC 50050</td>
+                  <td>OPT0987</td>
+                  <td>Solinfitec</td>
+                  <td>09/04/2025</td>
+                  <td>Aprovada</td>
+                  <td>09/04/2025</td>
+                  <td>19/04/2025</td>
+                  <td style="background-color: rgba(255, 0, 0, 0.1);">00045</td>
+                  <td style="background-color: rgba(255, 0, 0, 0.1);">21/04/2025</td>
+                </tr>
+                <tr style="cursor: pointer;">
+                  <td>PC 50056</td>
+                  <td>OPT0998</td>
+                  <td>Solinfitec</td>
+                  <td>09/04/2025</td>
+                  <td>Análise Cliente</td>
+                  <td>09/04/2025</td>
+                  <td>-</td>
+                  <td style="background-color: rgba(255, 0, 0, 0.1);">-</td>
+                  <td style="background-color: rgba(255, 0, 0, 0.1);">-</td>
+                </tr>
+                <tr style="cursor: pointer;">
+                  <td>PC 50056</td>
+                  <td>OPT0923</td>
+                  <td>Robert Boch Ltda</td>
+                  <td>09/04/2025</td>
+                  <td>Aprovada</td>
+                  <td>09/04/2025</td>
+                  <td>19/04/2025</td>
+                  <td style="background-color: rgba(255, 0, 0, 0.1);">00045</td>
+                  <td style="background-color: rgba(255, 0, 0, 0.1);">21/04/2025</td>
+                </tr>
+                <tr style="cursor: pointer;">
+                  <td>PC 50060</td>
+                  <td>OPT0922</td>
+                  <td>Solinfitec</td>
+                  <td>09/04/2025</td>
+                  <td>Aprovada</td>
+                  <td>09/04/2025</td>
+                  <td>19/04/2025</td>
+                  <td style="background-color: rgba(255, 0, 0, 0.1);">00045</td>
+                  <td style="background-color: rgba(255, 0, 0, 0.1);">21/04/2025</td>
+                </tr>
+                <tr style="cursor: pointer;">
+                  <td>PC 50064</td>
+                  <td>OPT0921</td>
+                  <td>Usina Alto Alegre</td>
+                  <td>09/04/2025</td>
+                  <td>Aprovada</td>
+                  <td>09/04/2025</td>
+                  <td>19/04/2025</td>
+                  <td style="background-color: rgba(255, 0, 0, 0.1);">00045</td>
+                  <td style="background-color: rgba(255, 0, 0, 0.1);">21/04/2025</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+      <section v-else-if="currentView === 'detalhesProposta'">
+        <div class="titulo">
+          <div class="margem container">
+            <div class="m-icone esquerda">
+              <a class="icone-voltar m-d" title="Voltar" @click="voltarParaVendas"></a>
+            </div>
+            <h2>Detalhes da Proposta Comercial</h2>
+          </div>
+        </div>
+        <div data-v-63b48b03="" class="bloco" style="width: 1700px; margin: 80px;">
+          <div id="123" onclick="document.getElementById('modalProdutos').style.display='block'" style="cursor: pointer;"><div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+
+          </div></div>
+          <fieldset data-v-63b48b03="" class="margem grid-2">
+            <span><h3>Nº da proposta comercial: PC50050</h3>
+              
+            </span>
+          </fieldset>
+          <fieldset data-v-63b48b03="" class="margem grid-6" style="display: flex; flex-wrap: wrap; gap: 20px; align-items: center;">
+            <div data-v-63b48b03="" style="flex: 1; min-width: 200px;">
+              <h4>Proposta comercial</h4> <span>PC2504551</span>
+            </div>
+            <div data-v-63b48b03="" style="flex: 1; min-width: 200px;">
+              <h4>Data de criação</h4> <span>09/04/2025</span>
+            </div>
+            <div data-v-63b48b03="" style="flex: 1; min-width: 200px;">
+              <h4>CNPJ</h4> <span>48.254.566/0001-55</span>
+            </div>
+            <div data-v-63b48b03="" style="flex: 1; min-width: 200px;">
+              <h4>Razão Social</h4> <span>Solinfitec</span>
+            </div>
+            <div data-v-63b48b03="" style="flex: 1; min-width: 200px;">
+              <h4>Aprovação Cliente</h4> <span>09/04/2025</span>
+            </div>
+            <div data-v-63b48b03="" style="flex: 1; min-width: 200px;">
+              <h4>Previsão de entrega</h4> <span><input data-v-63b48b03="" type="date"></span>
+            </div>
+          </fieldset>
+
+          <div id="123" onclick="document.getElementById('modalProdutos').style.display='block'" style="cursor: pointer;">
+            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+              <br>
+              <div data-v-487991f2="" class="tags">
+                <a id="maisProdutos" data-v-487991f2="" class="ativo">+</a>
+              </div>
+            </div>
+          </div>
+          <br>
+
+          <table class="tabela" style="margin: 30px;">
+            <tbody>
+              <tr>
+                <th scope="col" style="white-space: nowrap;">Cod. Produto</th>
+                <th scope="col" style="white-space: nowrap;">Descrição</th>
+                <th scope="col" style="white-space: nowrap;">Previsão de entrega</th>
+                <th scope="col" style="white-space: nowrap;">Quantidade</th>
+                <th style="text-align: center;">Estoque</th>
+                <th style="text-align: center;">Observação do produto</th>
+                <th style="text-align: center;">Link Anexo</th>
+                <th style="text-align: center; background-color: rgba(0, 0, 255, 0.03); border: 1px solid rgba(0, 0, 255, 0.05);">Reservado expedição</th>
+                <th style="text-align: center; background-color: rgba(0, 0, 255, 0.03); border: 1px solid rgba(0, 0, 255, 0.05);">Quant. a Produzir</th>
+                <th scope="col" style="white-space: nowrap; background-color: rgba(255, 0, 0, 0.03); border: 1px solid rgba(255, 0, 0, 0.05);">Nr de Op</th>
+                <th style="text-align: center; background-color: rgba(255, 0, 0, 0.03); border: 1px solid rgba(255, 0, 0, 0.05);">Previsão de conclusão</th>
+                <th style="text-align: center; background-color: rgba(255, 0, 0, 0.03); border: 1px solid rgba(255, 0, 0, 0.05);">Previsão de conclusão</th>
+              </tr>
+              <tr style="cursor: pointer;">
+                <td>CST040003</td>
+                <td>Case X115 magnética</td>
+                <td>10/04/2025</td>
+                <td>1000</td>
+                <td>500</td>
+                <td>nova cor</td>
+                <td>www.uyhgt.com</td>
+                <td style="background-color: rgba(0, 0, 255, 0.03); border: 1px solid rgba(0, 0, 255, 0.05);"><input type="text" value="500"></td>
+                <td style="background-color: rgba(0, 0, 255, 0.03); border: 1px solid rgba(0, 0, 255, 0.05);"><input type="text" value="500"></td>
+                <td style="background-color: rgba(255, 0, 0, 0.03); border: 1px solid rgba(255, 0, 0, 0.05);">000150</td>
+                <td style="background-color: rgba(255, 0, 0, 0.03); border: 1px solid rgba(255, 0, 0, 0.05);">10/04/2025</td>
+                <td style="background-color: rgba(255, 0, 0, 0.03); border: 1px solid rgba(255, 0, 0, 0.05);">10/04/2025</td>
+              </tr>
+              <tr style="cursor: pointer;">
+                <td>PLUG040002</td>
+                <td scope="col">Plug Magnético C</td>
+                <td>10/04/2025</td>
+                <td>1500</td>
+                <td>1000</td>
+                <td>-</td>
+                <td>-</td>
+                <td style="background-color: rgba(0, 0, 255, 0.03); border: 1px solid rgba(0, 0, 255, 0.05);"><input type="text" value="1000"></td>
+                <td style="background-color: rgba(0, 0, 255, 0.03); border: 1px solid rgba(0, 0, 255, 0.05);"><input type="text" value="500"></td>
+                <td style="background-color: rgba(255, 0, 0, 0.03); border: 1px solid rgba(255, 0, 0, 0.05);"></td>
+                <td style="background-color: rgba(255, 0, 0, 0.03); border: 1px solid rgba(255, 0, 0, 0.05);"></td>
+                <td style="background-color: rgba(255, 0, 0, 0.03); border: 1px solid rgba(255, 0, 0, 0.05);"></td>
+              </tr>
+            </tbody>
+          </table>
+
+          <fieldset>
+            <br>
+            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+              <br>
+              <div data-v-487991f2="" class="tags">
+                <a id="maisProdutos" data-v-487991f2="" class="ativo">+</a>
+              </div>
+            </div>
+            <br>
+            <div data-v-63b48b03="" style="display: grid; grid-template-columns: 30% 70%;">
+              <div data-v-63b48b03="">
+                <label data-v-63b48b03="">Data da Atualização</label>
+                <input type="date">
+              </div>
+              <div data-v-63b48b03="" style="margin-left:40px">
+                <label data-v-63b48b03="">Observação</label>
+                <textarea data-v-63b48b03=""></textarea>
+              </div>
+            </div>
+          </fieldset>
+
+          <div data-v-399ff5f7="" class="bloco margem">
+            <div data-v-399ff5f7="" class="alinha-v">
+              <button data-v-399ff5f7="" type="button" class="v-btn v-btn--elevated v-btn--icon v-theme--light v-btn--density-default v-btn--size-default v-btn--variant-elevated acao-secundaria" id="124" aria-haspopup="menu" aria-expanded="false" aria-controls="v-menu-7" style="transform: scale(0.7);" onclick="document.getElementById('modalPropostaComercial').style.display='block'">
+                <span class="v-btn__overlay"></span>
+                <span class="v-btn__underlay"></span>
+                <span class="v-btn__content" data-no-activator="">
+                  <i class="mdi-plus mdi v-icon notranslate v-theme--light v-icon--size-default" aria-hidden="true"></i>
+                </span>
+              </button>
+              <input data-v-399ff5f7="" type="file" style="display: none;">
+              <div data-v-399ff5f7="" style="display: flex; padding-left: 0.2rem; border-radius: 5px; width: 100%; align-content: center; gap: 5px;">
+                <input data-v-399ff5f7="" type="text" placeholder="O que será feito?" class="input-comentario" style="height: 3rem; margin: 0px 0px 0px 5px;">
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section v-else>
+        <div class="titulo">
+          <div class="margem container">
+            <div class="m-icone esquerda">
+              <a class="icone-voltar m-d" title="Voltar"></a>
+            </div>
+            <h2>Produção</h2>
+            <h2>{{ currentView === 'crm' ? 'CRM' : 'Produção' }}</h2>
+          </div>
+        </div>
+        <div class="margem container">
+
+          <div
+            v-if="modalAberta"
+            class="modal-overlay"
+            @click.self="modalAberta = false"
+          >
+            <div class="modal-content">
+              <button class="modal-close" @click="modalAberta = false">&times;</button>
+              <h2 style="color: #333; margin-bottom: 15px;">Modal Funcional</h2>
+              <p style="color: #666;">Tudo em um único arquivo HTML, agora como componente Vue!</p>
+            </div>
+          </div>
+          <div class="abas">
+            <a class="ativo">Ordens de produção </a>
+            <a>Kanban</a>
+          </div>
+          <!-- Kanban Board -->
+          <div class="kanban-container">
+            <div class="kanban-board">
+              <div
+                class="colunaKanban bloco"
+                style="border-color: rgb(255, 145, 0);"
+              >
+                <h3>OP OK</h3>
+                <div class="containerTarefa">
+                  <draggable
+                    v-model="kanban['OP OK']"
+                    group="tarefas"
+                    @end="onEnd"
+                    :animation="150"
+                    ghost-class="ghost"
+                  >
+                  <div
+                    v-for="(tarefa, idx) in kanban['OP OK']"
+                    :key="'ok-'+idx"
+                    class="tarefa bloco"
+                    @click="abrirModalTratarOP(tarefa)"
+                  >
+                    <span class="fonte-forte" style="font-size: 18px; display: block; word-wrap: break-word;">{{ tarefa.titulo }}</span>
+                    <div class="rodapeTarefa">
+                      <div style="flex: 1; min-width: 150px;">
+                        <span class="fonte-forte" style="display: block; word-wrap: break-word;">{{ tarefa.codigo }}</span>
+                      </div>
+                      <span style="flex: 1; min-width: 100px; text-align: left;">
+                        <span>{{ tarefa.cliente }}</span>
+                        <span>{{ tarefa.percentual }}</span>
+                      </span>
+                      <div style="flex: 1; min-width: 100px; text-align: left;">
+                        <span class="fonte-forte">Prev. Concl:</span> {{ tarefa.previsao }}
+                      </div>
+                    </div>
+                  </div>
+                  </draggable>
+                </div>
+              </div>
+              <div
+                class="colunaKanban bloco"
+                style="border-color: rgb(0, 47, 255);"
+              >
+                <h3>OP Com pendência</h3>
+                <div class="containerTarefa">
+                  <draggable
+                    v-model="kanban['OP Com pendência']"
+                    group="tarefas"
+                    @end="onEnd"
+                    :animation="150"
+                    ghost-class="ghost"
+                  >
+                  <div
+                    v-for="(tarefa, idx) in kanban['OP Com pendência']"
+                    :key="'pend-'+idx"
+                    class="tarefa bloco"
+                    @click="abrirModalTratarOP(tarefa)"
+                  >
+                    <span class="fonte-forte" style="font-size: 18px; display: block; word-wrap: break-word;">{{ tarefa.titulo }}</span>
+                    <div class="rodapeTarefa">
+                      <div style="flex: 1; min-width: 150px;">
+                        <span class="fonte-forte" style="display: block; word-wrap: break-word;">{{ tarefa.codigo }}</span>
+                      </div>
+                      <span style="flex: 1; min-width: 100px; text-align: left;">
+                        <span>{{ tarefa.cliente }}</span>
+                        <span>{{ tarefa.percentual }}</span>
+                      </span>
+                      <div style="flex: 1; min-width: 100px; text-align: left;">
+                        <span class="fonte-forte">Prev. Concl:</span> {{ tarefa.previsao }}
+                      </div>
+                    </div>
+                  </div>
+                  </draggable>
+                </div>
+              </div>
+              <div
+                class="colunaKanban bloco"
+                style="border-color: rgb(0, 192, 0);"
+              >
+                <h3>OP em tratamento</h3>
+                <div class="containerTarefa"></div>
+              </div>
+              <div
+                class="colunaKanban bloco"
+                style="border-color: rgb(255, 165, 0);"
+              >
+                <h3>Separação de material</h3>
+                <div class="containerTarefa"></div>
+              </div>
+              <div
+                class="colunaKanban bloco"
+                style="border-color: rgb(255, 165, 0);"
+              >
+                <h3>Produção/Montagem</h3>
+                <div class="containerTarefa"></div>
+              </div>
+              <div
+                class="colunaKanban bloco"
+                style="border-color: rgb(255, 0, 0);"
+              >
+                <h3>Expedição</h3>
+                <div class="containerTarefa"></div>
+              </div>
+            </div>
+          </div>
+          <!-- Modal para Tratar OP -->
+          <div
+            v-if="modalTratarOPAberta"
+            class="modal-overlay"
+            @click.self="modalTratarOPAberta = false"
+          >
+            <div class="modal-content bloco">
+              <button class="modal-close" @click="modalTratarOPAberta = false">&times;</button>
+              <div class="bloco">
+                <div class="margem grid-3">
+                  <div>
+                    <label>Produto</label>
+                    <input type="text" value="BRC040006 - Braço Autotravante Curto B">
+                  </div>
+                     <div>
+                    <label>Quantidade a Produzir</label>
+                    <input type="number" value="1650">
+                  </div>
+                  <div>
+                    <label>Previsão de Conclusão</label>
+                    <input type="date">
+                  </div>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                
+                </div>
+                <table class="tabela">
+                  <tbody>
+                    <tr>
+                      <th scope="col" style="white-space: nowrap;">Produto</th>
+                      <th scope="col" style="white-space: nowrap;">Quantidade</th>
+                      <th scope="col" style="white-space: nowrap;">Estoque</th>
+                      <th scope="col" style="white-space: nowrap;">Comprar</th>
+                      <th scope="col" style="white-space: nowrap;">Produzir</th>
+                    </tr>
+                    <tr style="cursor: pointer;">
+                      <td>INJ010010 -  FRONTAL M7 T113 T116</td>
+                      <td><input type="text" size="7" value="500"></td>
+                      <td>400</td>
+                      <td>
+                      <button
+                        class="v-btn v-btn--elevated v-btn--icon v-theme--light v-btn--density-default v-btn--size-default v-btn--variant-elevated acao-secundaria"
+                        @click="abrirModalComprar"
+                      >
+                        <span class="v-btn__overlay"></span>
+                        <span class="v-btn__underlay"></span>
+                        <span class="v-btn__content" data-no-activator="">
+                          <i class="mdi-plus mdi v-icon notranslate v-theme--light v-icon--size-default" aria-hidden="true"></i>
+                        </span>
+                        Comprar
+                      </button>
+                      </td>
+                      <td>
+                      <button class="v-btn v-btn--elevated v-btn--icon v-theme--light v-btn--density-default v-btn--size-default v-btn--variant-elevated acao-secundaria" @click="abrirModalProducao">
+                        <span class="v-btn__overlay"></span>
+                        <span class="v-btn__underlay"></span>
+                        <span class="v-btn__content" data-no-activator="">
+                          <i class="mdi-plus mdi v-icon notranslate v-theme--light v-icon--size-default" aria-hidden="true"></i>
+                        </span>Produzir
+                      </button>
+                      </td>
+                    </tr>
+                    <tr style="cursor: pointer;">
+                      <td>FIX010033 - PAR PH AAT 2,9 X 6,5 PAN PRATA</td>
+                      <td><input type="text" size="7" value="2000"></td>
+                      <td>1500</td> 
+                      <td><button class="v-btn v-btn--elevated v-btn--icon v-theme--light v-btn--density-default v-btn--size-default v-btn--variant-elevated acao-secundaria">
+                        <span class="v-btn__overlay"></span>
+                        <span class="v-btn__underlay"></span>
+                        <span class="v-btn__content" data-no-activator="">
+                          <i class="mdi-plus mdi v-icon notranslate v-theme--light v-icon--size-default" aria-hidden="true"></i>
+                        </span>Comprar
+                      </button></td>
+                      <td>
+                      <button class="v-btn v-btn--elevated v-btn--icon v-theme--light v-btn--density-default v-btn--size-default v-btn--variant-elevated acao-secundaria" @click="abrirModalProducao">
+                        <span class="v-btn__overlay"></span>
+                        <span class="v-btn__underlay"></span>
+                        <span class="v-btn__content" data-no-activator="">
+                          <i class="mdi-plus mdi v-icon notranslate v-theme--light v-icon--size-default" aria-hidden="true"></i>
+                        </span>Produzir
+                      </button></td>
+                    </tr>
+                    <tr style="cursor: pointer;">
+                      <td>FIX010013 - ARRUELA 5/32 POL LISA PRATA	</td>
+                      <td><input type="text" size="7" value="2000"></td>
+                      <td>3000</td>
+                      <td>
+                      <button class="v-btn v-btn--elevated v-btn--icon v-theme--light v-btn--density-default v-btn--size-default v-btn--variant-elevated acao-secundaria">
+                        <span class="v-btn__overlay"></span>
+                        <span class="v-btn__underlay"></span>
+                        <span class="v-btn__content" data-no-activator="">
+                          <i class="mdi-plus mdi v-icon notranslate v-theme--light v-icon--size-default" aria-hidden="true"></i>
+                        </span>Comprar
+                      </button></td>
+                      <td>
+                      <button class="v-btn v-btn--elevated v-btn--icon v-theme--light v-btn--density-default v-btn--size-default v-btn--variant-elevated acao-secundaria" @click="abrirModalProducao">
+                        <span class="v-btn__overlay"></span>
+                        <span class="v-btn__underlay"></span>
+                        <span class="v-btn__content" data-no-activator="">
+                          <i class="mdi-plus mdi v-icon notranslate v-theme--light v-icon--size-default" aria-hidden="true"></i>
+                        </span>Produzir
+                      </button></td>
+                    </tr>
+                    <tr style="cursor: pointer;">
+                      <td>ADS010007 - BORRACHA FE 20X10 ST		</td>
+                      <td><input type="text" size="7" value="2000"></td>
+                      <td>7000</td>
+                      <td>
+                      <button class="v-btn v-btn--elevated v-btn--icon v-theme--light v-btn--density-default v-btn--size-default v-btn--variant-elevated acao-secundaria">
+                        <span class="v-btn__overlay"></span>
+                        <span class="v-btn__underlay"></span>
+                        <span class="v-btn__content" data-no-activator="">
+                          <i class="mdi-plus mdi v-icon notranslate v-theme--light v-icon--size-default" aria-hidden="true"></i>
+                        </span>Comprar
+                      </button></td>
+                      <td>
+                      <button class="v-btn v-btn--elevated v-btn--icon v-theme--light v-btn--density-default v-btn--size-default v-btn--variant-elevated acao-secundaria" @click="abrirModalProducao">
+                        <span class="v-btn__overlay"></span>
+                        <span class="v-btn__underlay"></span>
+                        <span class="v-btn__content" data-no-activator="">
+                          <i class="mdi-plus mdi v-icon notranslate v-theme--light v-icon--size-default" aria-hidden="true"></i>
+                        </span>Produzir
+                      </button></td>
+                    </tr>
+                    <tr style="cursor: pointer;">
+                      <td>PRE030003 - GABARITO DE COLAGEM CENTRAL MIKE	</td>
+                      <td><input type="text" size="7" value="500"></td>
+                      <td>100</td>
+                      <td>
+                      <button class="v-btn v-btn--elevated v-btn--icon v-theme--light v-btn--density-default v-btn--size-default v-btn--variant-elevated acao-secundaria">
+                        <span class="v-btn__overlay"></span>
+                        <span class="v-btn__underlay"></span>
+                        <span class="v-btn__content" data-no-activator="">
+                          <i class="mdi-plus mdi v-icon notranslate v-theme--light v-icon--size-default" aria-hidden="true"></i>
+                        </span>Comprar
+                      </button></td>
+                      <td>
+                      <button class="v-btn v-btn--elevated v-btn--icon v-theme--light v-btn--density-default v-btn--size-default v-btn--variant-elevated acao-secundaria" @click="abrirModalProducao">
+                        <span class="v-btn__overlay"></span>
+                        <span class="v-btn__underlay"></span>
+                        <span class="v-btn__content" data-no-activator="">
+                          <i class="mdi-plus mdi v-icon notranslate v-theme--light v-icon--size-default" aria-hidden="true"></i>
+                        </span>Produzir
+                      </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+                <div class="margem grid-3">
+               
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Modal Comprar Material -->
+          <div
+            v-if="modalComprarAberta"
+            class="modal-overlay"
+            @click.self="modalComprarAberta = false"
+          >
+            <div class="modal-content bloco">
+              <button class="modal-close" @click="modalComprarAberta = false">&times;</button>
+              <div class="bloco margem">
+                <h2>Solicitar Compra de Material</h2>
+                <form @submit.prevent="confirmarCompra">
+                  <div class="grid-3">
+                    <div class="form-group">
+                      <label>Produto</label>
+                      <input type="text" v-model="produtoSelecionado" readonly="readonly" class="form-control">
+                    </div>
+                    <div class="form-group">
+                      <label>Quantidade</label>
+                      <input type="number" v-model="quantidadeCompra" min="1" class="form-control">
+                    </div>
+                    <div class="form-group">
+                      <label>Previsão de Entrega</label>
+                      <input type="date" v-model="previsaoEntrega" class="form-control">
+                    </div>
+                  </div>
+                  <div class="grid-2">
+                    <div class="form-group">
+                      <label>Sugestão de Fornecedor</label>
+                      <select v-model="fornecedorSelecionado" class="form-control">
+                        <option value="">Selecione um fornecedor</option>
+                        <option value="1">Fornecedor A</option>
+                        <option value="2">Fornecedor B</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label>Observações</label>
+                    <textarea v-model="observacoesCompra" rows="3" class="form-control"></textarea>
+                  </div>
+                  <div class="margem">
+                    <button type="submit" class="btn btn-primary">Confirmar Pedido de Compra</button>
+                    <button type="button" class="btn btn-secondary" @click="modalComprarAberta = false">Cancelar</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+          <!-- Modal de Produção -->
+          <div
+            v-if="modalProducaoAberta"
+            class="modal-overlay"
+            @click.self="modalProducaoAberta = false"
+          >
+            <div class="modal-content bloco" style="width: 90%; max-width: 1200px;">
+              <button class="modal-close" @click="modalProducaoAberta = false">&times;</button>
+              <div class="bloco margem">
+                <h2>Criar Ordem de Produção</h2>
+                <div class="bloco">
+                  <div class="margem grid-3">
+                    <div>
+                      <label>Produto</label>
+                      <input type="text" v-model="produtoSelecionado" readonly>
+                    </div>
+                    <div>
+                      <label>Quantidade Total</label>
+                      <input type="number" v-model="quantidadeTotal" min="1">
+                    </div>
+                    <div>
+                      <label>Previsão de Conclusão</label>
+                      <input type="date" v-model="previsaoConclusao">
+                    </div>
+                  </div>
+                  
+                  <div class="margem">
+                    <h3>Destinos da Produção</h3>
+                    <table class="tabela">
+                      <thead>
+                        <tr>
+                          <th>Destino</th>
+                          <th>Quantidade</th>
+                          <th>Número OP</th>
+                          <th>Previsão Entrega</th>
+                          <th>Ações</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr v-for="(destino, index) in destinos" :key="index">
+                          <td>
+                            <select v-model="destino.nome" class="form-control">
+                              <option value="COFERMETA SA">COFERMETA SA</option>
+                              <option value="USINA ALTO VERDE">USINA ALTO VERDE</option>
+                              <option value="ESTOQUE">ESTOQUE</option>
+                            </select>
+                          </td>
+                          <td><input type="number" v-model="destino.quantidade" min="1" class="form-control"></td>
+                          <td><input type="text" v-model="destino.op" class="form-control"></td>
+                          <td><input type="date" v-model="destino.previsaoEntrega" class="form-control"></td>
+                          <td>
+                            <button @click="removerDestino(index)" class="btn btn-danger">Remover</button>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                    <button @click="adicionarDestino" class="btn btn-primary mt-2">Adicionar Destino</button>
+                  </div>
+
+                  <div class="margem">
+                    <h3>Materiais Necessários</h3>
+                    <table class="tabela">
+                      <thead>
+                        <tr>
+                          <th>Material</th>
+                          <th>Quantidade Necessária</th>
+                          <th>Estoque Disponível</th>
+                          <th>Status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr v-for="(material, index) in materiais" :key="index">
+                          <td>{{ material.nome }}</td>
+                          <td>{{ material.quantidadeNecessaria }}</td>
+                          <td>{{ material.estoque }}</td>
+                          <td>
+                            <span :class="{'text-success': material.estoque >= material.quantidadeNecessaria, 'text-danger': material.estoque < material.quantidadeNecessaria}">
+                              {{ material.estoque >= material.quantidadeNecessaria ? 'Disponível' : 'Insuficiente' }}
+                            </span>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <div class="margem">
+                    <h3>Observações</h3>
+                    <textarea v-model="observacoesProducao" rows="4" class="form-control" placeholder="Adicione observações importantes sobre a produção..."></textarea>
+                  </div>
+
+                  <div class="margem">
+                    <h3>Prioridade</h3>
+                    <select v-model="prioridade" class="form-control">
+                      <option value="baixa">Baixa</option>
+                      <option value="media">Média</option>
+                      <option value="alta">Alta</option>
+                      <option value="urgente">Urgente</option>
+                    </select>
+                  </div>
+
+                  <div class="submit direita margem">
+                    <button @click="salvarOrdemProducao" class="btn btn-primary">Salvar Ordem de Produção</button>
+                    <button @click="modalProducaoAberta = false" class="btn btn-secondary">Cancelar</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <br>
+          <div class="alinha-centro mt-5">
+            <a class="col-4 col-sm-4 col-md-3 btn btn-secondary" onclick="history.back()"><strong>Voltar</strong></a>
+            <button class="col-4 col-sm-4 col-md-3 btn ml-5" type="submit" form="po-form"><strong>Salvar</strong></button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vuedraggable@2.24.3/dist/vuedraggable.umd.min.js"></script>
+  <script>
+    new Vue({
+      el: '#app',
+      data: {
+        modalAberta: false,
+        modalTratarOPAberta: false,
+        modalComprarAberta: false,
+        modalProducaoAberta: false,
+        modalNovaOportunidadeAberta: false,
+        tarefaSelecionada: null,
+        produtoSelecionado: '',
+        quantidadeTotal: 0,
+        previsaoConclusao: '',
+        destinos: [],
+        materiais: [
+          {
+            nome: 'Material A',
+            quantidadeNecessaria: 10,
+            estoque: 15,
+            status: 'ok'
+          },
+          {
+            nome: 'Material B',
+            quantidadeNecessaria: 5,
+            estoque: 3,
+            status: 'insuficiente'
+          }
+        ],
+        observacoesProducao: '',
+        prioridade: 'media',
+        opcoesDestino: ['OP 123', 'OP 456', 'OP 789'],
+        opcoesPrioridade: [
+          { valor: 'baixa', texto: 'Baixa' },
+          { valor: 'media', texto: 'Média' },
+          { valor: 'alta', texto: 'Alta' }
+        ],
+        kanban: {
+          'OP OK': [
+            {
+              titulo: 'OP4450 - PA',
+              codigo: '1500 - CST040003',
+              cliente: 'Solinftec',
+              percentual: '10%',
+              previsao: '10/04/2025'
+            },
+            {
+              titulo: 'OP4451 - PB',
+              codigo: '1501 - CST040004',
+              cliente: 'Solinftec',
+              percentual: '20%',
+              previsao: '12/04/2025'
+            }
+          ],
+          'OP Com pendência': [
+            {
+              titulo: 'OP4452 - PC',
+              codigo: '1502 - CST040005',
+              cliente: 'Solinftec',
+              percentual: '5%',
+              previsao: '15/04/2025'
+            },
+            {
+              titulo: 'OP4453 - PD',
+              codigo: '1503 - CST040006',
+              cliente: 'Solinftec',
+              percentual: '30%',
+              previsao: '18/04/2025'
+            }
+          ]
+        },
+        dataAtual: new Date().toISOString().split('T')[0],
+        faseAtual: 'Desenvolvimento',
+        status: 'Ativo',
+        temperatura: '40%',
+        corTemperatura: '#FFA726',
+        previsaoFechamento: '',
+        problemaApresentado: '',
+        solucoes: [],
+        orcamentos: [],
+        tarefas: [],
+        currentView: 'producao',
+        propostaSelecionada: null,
+        quantidadeCompra: 1,
+        previsaoEntrega: '',
+        fornecedorSelecionado: '',
+        observacoesCompra: ''
+      },
+      methods: {
+        toggleMenu() {
+          const main = document.getElementById('main');
+          if (main) main.classList.toggle('esconde');
+        },
+        showVendas() {
+          this.currentView = 'vendas';
+        },
+        abrirModalTratarOP(tarefa) {
+          this.tarefaSelecionada = tarefa;
+          this.modalTratarOPAberta = true;
+        },
+        abrirModalComprar() {
+          this.modalTratarOPAberta = false;
+          this.modalComprarAberta = true;
+          // Inicializar dados do produto selecionado
+          this.produtoSelecionado = this.tarefaSelecionada ? this.tarefaSelecionada.produto : '';
+          this.quantidadeCompra = 1;
+          this.previsaoEntrega = new Date().toISOString().split('T')[0];
+          this.fornecedorSelecionado = '';
+          this.observacoesCompra = '';
+        },
+        abrirModalProducao() {
+          this.modalTratarOPAberta = false;
+          this.modalProducaoAberta = true;
+          // Inicializar dados da produção
+          this.quantidadeTotal = this.tarefaSelecionada ? this.tarefaSelecionada.quantidade : 0;
+          this.previsaoConclusao = new Date().toISOString().split('T')[0];
+          this.destinos = [];
+          this.observacoesProducao = '';
+          this.prioridade = 'media';
+        },
+        showCRM() {
+          this.currentView = 'crm';
+        },
+        salvarOrdemProducao() {
+          // Validar dados antes de salvar
+          if (!this.validarOrdemProducao()) {
+            return;
+          }
+
+          const ordemProducaoData = {
+            produto: this.produtoSelecionado,
+            quantidadeTotal: this.quantidadeTotal,
+            previsaoConclusao: this.previsaoConclusao,
+            destinos: this.destinos,
+            materiais: this.materiais,
+            observacoes: this.observacoesProducao,
+            prioridade: this.prioridade
+          };
+
+          console.log('Dados da ordem de produção:', ordemProducaoData);
+          alert('Ordem de produção criada com sucesso!');
+          this.modalProducaoAberta = false;
+        },
+        validarOrdemProducao() {
+          // Validar quantidade total
+          if (this.quantidadeTotal <= 0) {
+            alert('A quantidade total deve ser maior que zero');
+            return false;
+          }
+
+          // Validar destinos
+          if (this.destinos.length === 0) {
+            alert('Adicione pelo menos um destino para a produção');
+            return false;
+          }
+
+          // Validar se a soma das quantidades dos destinos é igual à quantidade total
+          const somaQuantidades = this.destinos.reduce((total, destino) => total + parseInt(destino.quantidade || 0), 0);
+          if (somaQuantidades !== this.quantidadeTotal) {
+            alert('A soma das quantidades dos destinos deve ser igual à quantidade total');
+            return false;
+          }
+
+          // Validar materiais
+          const materiaisInsuficientes = this.materiais.filter(m => m.estoque < m.quantidadeNecessaria);
+          if (materiaisInsuficientes.length > 0) {
+            alert('Existem materiais com estoque insuficiente');
+            return false;
+          }
+
+          return true;
+        },
+        adicionarDestino() {
+          this.destinos.push({
+            nome: '',
+            quantidade: 0,
+            op: '',
+            previsaoEntrega: new Date().toISOString().split('T')[0]
+          });
+        },
+        removerDestino(index) {
+          this.destinos.splice(index, 1);
+        },
+        onEnd(evt) {
+          console.log('Card movido:', evt);
+        },
+        abrirModalNovaOportunidade() {
+          console.log('Abrindo modal de nova oportunidade');
+          this.modalNovaOportunidadeAberta = true;
+        },
+        fecharModalNovaOportunidade() {
+          console.log('Fechando modal de nova oportunidade');
+          this.modalNovaOportunidadeAberta = false;
+        },
+        atualizarCorTemperatura() {
+          const cores = {
+            '20%': '#FFEB3B',
+            '40%': '#FFA726',
+            '60%': '#FF7043'
+          };
+          this.corTemperatura = cores[this.temperatura];
+        },
+        adicionarSolucao() {
+          this.solucoes.push({
+            data: new Date().toISOString().split('T')[0],
+            solucao: ''
+          });
+        },
+        adicionarOrcamento() {
+          this.orcamentos.push({
+            proposta: '',
+            aprovada: false,
+            dataEntrega: ''
+          });
+        },
+        adicionarTarefa() {
+          this.tarefas.push({
+            descricao: '',
+            hp: '0',
+            responsavel: '',
+            inicioPrevisto: '',
+            fimPrevisto: '',
+            status: 'Pendente'
+          });
+        },
+        salvarOportunidade() {
+          // Implementar lógica de salvamento
+          console.log('Oportunidade salva:', {
+            dataAtual: this.dataAtual,
+            faseAtual: this.faseAtual,
+            status: this.status,
+            temperatura: this.temperatura,
+            previsaoFechamento: this.previsaoFechamento,
+            problemaApresentado: this.problemaApresentado,
+            solucoes: this.solucoes,
+            orcamentos: this.orcamentos,
+            tarefas: this.tarefas
+          });
+          this.fecharModalNovaOportunidade();
+        },
+        selecionarProposta(proposta) {
+          this.propostaSelecionada = proposta;
+          this.currentView = 'detalhesProposta';
+        },
+        voltarParaVendas() {
+          this.currentView = 'vendas';
+        },
+        confirmarCompra() {
+          // Validar dados antes de confirmar
+          if (!this.validarCompra()) {
+            return;
+          }
+
+          const pedidoCompra = {
+            produto: this.produtoSelecionado,
+            quantidade: this.quantidadeCompra,
+            previsaoEntrega: this.previsaoEntrega,
+            fornecedor: this.fornecedorSelecionado,
+            observacoes: this.observacoesCompra
+          };
+
+          console.log('Dados do pedido de compra:', pedidoCompra);
+          alert('Pedido de compra registrado com sucesso!');
+          this.modalComprarAberta = false;
+        },
+        validarCompra() {
+          if (!this.produtoSelecionado) {
+            alert('Selecione um produto');
+            return false;
+          }
+
+          if (this.quantidadeCompra <= 0) {
+            alert('A quantidade deve ser maior que zero');
+            return false;
+          }
+
+          if (!this.previsaoEntrega) {
+            alert('Informe a previsão de entrega');
+            return false;
+          }
+
+          if (!this.fornecedorSelecionado) {
+            alert('Selecione um fornecedor');
+            return false;
+          }
+
+          return true;
+        }
+      }
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+      const form = document.getElementById('purchaseForm');
+      const productInput = document.getElementById('product');
+      const quantityInput = document.getElementById('quantity');
+      const unitPriceInput = document.getElementById('unitPrice');
+      const totalPriceInput = document.getElementById('totalPrice');
+
+      function updateTotalPrice() {
+        const quantity = parseFloat(quantityInput.value) || 0;
+        const unitPrice = parseFloat(unitPriceInput.value) || 0;
+        totalPriceInput.value = (quantity * unitPrice).toFixed(2);
+      }
+
+      quantityInput.addEventListener('input', updateTotalPrice);
+      unitPriceInput.addEventListener('input', updateTotalPrice);
+
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = {
+          product: productInput.value,
+          quantity: quantityInput.value,
+          deliveryForecast: document.getElementById('deliveryForecast').value,
+          supplier: document.getElementById('supplier').value,
+          unitPrice: unitPriceInput.value,
+          totalPrice: totalPriceInput.value,
+          observations: document.getElementById('observations').value
+        };
+
+        console.log('Dados do formulário:', formData);
+        alert('Compra registrada com sucesso!');
+        form.reset();
+      });
+
+      document.getElementById('cancelBtn').addEventListener('click', function() {
+        form.reset();
+      });
+
+      document.querySelector('.acao-secundaria').addEventListener('click', function() {
+        $('#modalProducao').modal('show');
+      });
+
+      window.salvarProducao = function() {
+        const producaoData = {
+          produto: document.querySelector('[v-model="produtoSelecionado"]').value,
+          quantidade: document.querySelector('[v-model="quantidadeProduzida"]').value,
+          data: document.querySelector('[v-model="dataProducao"]').value,
+          observacoes: document.querySelector('[v-model="observacoesProducao"]').value
+        };
+
+        console.log('Dados da produção:', producaoData);
+        alert('Produção registrada com sucesso!');
+        $('#modalProducao').modal('hide');
+      };
+    });
+  </script>
+</body>
+</html>

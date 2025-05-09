@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Produtos Acabados</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link href="../css/thalamus.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vuedraggable@2.24.3/dist/vuedraggable.umd.min.js"></script>
+  <style>
+    .container {
+      width: 1900px !important;
+      max-width: none !important;
+    }
+    .kanban-container {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      position: relative;
+      display: block;
+      overflow: hidden;
+    }
+    .kanban-board {
+      min-height: 27vw;
+      display: flex;
+      flex-direction: row;
+      gap: var(--margem);
+      width: 100%;
+      margin: 0;
+      padding: 0;
+      align-items: flex-start;
+      position: relative;
+      top: 0;
+      left: 0;
+    }
+    .colunaKanban {
+      border: 1px solid var(--cor-separador);
+      border-radius: 12px;
+      width: 210px;
+      min-height: 400px;
+      text-align: center;
+      padding: var(--margem);
+      background: var(--cor-bg);
+      flex-shrink: 0;
+      margin: 0;
+      position: relative;
+      top: 0;
+      left: 0;
+    }
+    .colunaKanban:first-child {
+      margin-top: 25px;
+    }
+    .colunaKanban h3 {
+      margin-top: 0;
+      color: var(--cor-fonte-forte);
+    }
+    .containerTarefa {
+      margin-top: var(--margem);
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .tarefa {
+      border: 1px solid var(--cor-separador);
+      border-radius: 12px;
+      padding: var(--margem);
+      margin: var(--margem) auto;
+      text-align: left;
+      box-sizing: border-box;
+      background: var(--cor-bg);
+      cursor: move;
+      transition: box-shadow 0.2s, transform 0.2s;
+    }
+    .tarefa:hover {
+      box-shadow: 0 2px 8px var(--cor-primaria-fraca);
+      background: var(--cor-primaria-fraca);
+      transform: translateY(-2px);
+    }
+    .tarefa .fonte-forte {
+      font-size: 18px;
+      display: block;
+      overflow-wrap: break-word;
+    }
+    .rodapeTarefa {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-top: var(--margem);
+    }
+    .rodapeTarefa > div {
+      flex: 1 1 0%;
+      min-width: 150px;
+    }
+    .rodapeTarefa > span {
+      flex: 1 1 0%;
+      min-width: 100px;
+      text-align: left;
+    }
+    @media (max-width: 1200px) {
+      .kanban-board { 
+        flex-wrap: nowrap;
+      }
+      .colunaKanban { 
+        width: 300px;
+      }
+    }
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(0,0,0,0.5);
+      display: flex; justify-content: center; align-items: flex-start;
+      z-index: 9999;
+      overflow-y: auto;
+      padding: 20px 0;
+    }
+    .modal-content {
+      background: var(--cor-bg);
+      padding: var(--margem);
+      border-radius: 12px;
+      width: 90%;
+      max-width: 1200px;
+      position: relative;
+      box-shadow: 0 2px 16px var(--cor-cinza);
+      animation: modalIn 0.2s;
+      margin: 20px auto;
+      max-height: none;
+      overflow-y: visible;
+    }
+    .modal-close {
+      position: absolute;
+      top: 10px; right: 10px;
+      background: transparent;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: var(--cor-fonte);
+    }
+    @keyframes modalIn {
+      from { transform: scale(0.95); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    .form-group {
+      margin-bottom: 1rem;
+    }
+    .form-control {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 1rem;
+    }
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+    .btn {
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 1rem;
+      margin-right: 0.5rem;
+    }
+    .btn-primary {
+      background-color: #4CAF50;
+      color: white;
+    }
+    .btn-secondary {
+      background-color: #f44336;
+      color: white;
+    }
+    .abas {
+      margin: 0;
+      padding: 0;
+      display: flex;
+      gap: 5px;
+      margin-bottom: var(--margem);
+      position: relative;
+    }
+    .abas a {
+      border: 1px solid var(--cor-separador);
+      padding: 10px;
+      text-decoration: none;
+      border-radius: 12px;
+      display: inline-block;
+      color: var(--cor-fonte);
+      margin: 0;
+    }
+    .abas .ativo {
+      background-color: var(--cor-primaria-fraca);
+      color: var(--cor-primaria-forte);
+    }
+  </style>
+</head>
+<body>
+  <div id="produtos-acabados">
+    <section>
+      <div class="titulo">
+        <div class="margem container">
+          <div class="m-icone esquerda">
+            <a class="icone-voltar m-d" title="Voltar"></a>
+          </div>
+          <h2>Produtos Acabados</h2>
+        </div>
+      </div>
+      <div class="margem container">
+        <div class="abas">
+          <a :class="{ 'ativo': abaAtiva === 'ordens' }" @click="mudarAba('ordens')">Ordens de produção</a>
+          <a :class="{ 'ativo': abaAtiva === 'kanban' }" @click="mudarAba('kanban')">Kanban</a>
+        </div>
+
+        <div v-if="abaAtiva === 'ordens'" class="bloco margem" style="width: 140%; max-width: 1400px; margin: 0 auto;">
+          <!-- Conteúdo da aba Ordens de produção -->
+          <div style="text-align: center;">
+            <a>
+              <h3>
+                <button class="acao-secundaria" style="margin: 0 auto; display: block;">Ordens de produção oriundas de propostas ou para estoque</button>
+              </h3>
+            </a>
+          </div>
+          <!-- Adicione aqui o conteúdo da tabela de ordens de produção -->
+        </div>
+
+        <div v-if="abaAtiva === 'kanban'" class="kanban-container">
+          <div class="kanban-board">
+            <div class="colunaKanban bloco" style="border-color: rgb(255, 145, 0);">
+              <h3>Produtos em Estoque</h3>
+              <div class="containerTarefa">
+                <draggable v-model="kanban['Produtos em Estoque']" group="tarefas" @end="onEnd" :animation="150" ghost-class="ghost">
+                  <div v-for="(tarefa, idx) in kanban['Produtos em Estoque']" :key="'estoque-'+idx" class="tarefa bloco" @click="abrirModalProduto(tarefa)">
+                    <span class="fonte-forte" style="font-size: 18px; display: block; word-wrap: break-word;">{{ tarefa.titulo }}</span>
+                    <div class="rodapeTarefa">
+                      <div style="flex: 1; min-width: 150px;">
+                        <span class="fonte-forte" style="display: block; word-wrap: break-word;">{{ tarefa.codigo }}</span>
+                      </div>
+                      <span style="flex: 1; min-width: 100px; text-align: left;">
+                        <span>{{ tarefa.quantidade }}</span>
+                      </span>
+                    </div>
+                  </div>
+                </draggable>
+              </div>
+            </div>
+            <div class="colunaKanban bloco" style="border-color: rgb(0, 47, 255);">
+              <h3>Produtos em Expedição</h3>
+              <div class="containerTarefa">
+                <draggable v-model="kanban['Produtos em Expedição']" group="tarefas" @end="onEnd" :animation="150" ghost-class="ghost">
+                  <div v-for="(tarefa, idx) in kanban['Produtos em Expedição']" :key="'expedicao-'+idx" class="tarefa bloco" @click="abrirModalProduto(tarefa)">
+                    <span class="fonte-forte" style="font-size: 18px; display: block; word-wrap: break-word;">{{ tarefa.titulo }}</span>
+                    <div class="rodapeTarefa">
+                      <div style="flex: 1; min-width: 150px;">
+                        <span class="fonte-forte" style="display: block; word-wrap: break-word;">{{ tarefa.codigo }}</span>
+                      </div>
+                      <span style="flex: 1; min-width: 100px; text-align: left;">
+                        <span>{{ tarefa.quantidade }}</span>
+                      </span>
+                    </div>
+                  </div>
+                </draggable>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Modal Produto -->
+    <div v-if="showModal" class="modal-overlay" @click.self="fecharModal">
+      <div class="modal-content">
+        <button class="modal-close" @click="fecharModal">&times;</button>
+        <h2>Detalhes do Produto</h2>
+        <div class="bloco">
+          <div class="margem grid-3">
+            <div>
+              <label>Produto</label>
+              <input type="text" v-model="produtoSelecionado.codigo" readonly>
+            </div>
+            <div>
+              <label>Quantidade</label>
+              <input type="number" v-model="produtoSelecionado.quantidade">
+            </div>
+            <div>
+              <label>Localização</label>
+              <input type="text" v-model="produtoSelecionado.localizacao">
+            </div>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;"></div>
+          <table class="tabela">
+            <tbody>
+              <tr>
+                <th scope="col" style="white-space: nowrap;">Produto</th>
+                <th scope="col" style="white-space: nowrap;">Quantidade</th>
+                <th scope="col" style="white-space: nowrap;">Estoque</th>
+                <th scope="col" style="white-space: nowrap;">Comprar</th>
+                <th scope="col" style="white-space: nowrap;">Produzir</th>
+              </tr>
+              <tr v-for="(material, index) in materiais" :key="index" style="cursor: pointer;">
+                <td>{{ material.nome }}</td>
+                <td><input type="text" size="7" v-model="material.quantidade"></td>
+                <td>{{ material.estoque }}</td>
+                <td>
+                  <button class="v-btn v-btn--elevated v-btn--icon v-theme--light v-btn--density-default v-btn--size-default v-btn--variant-elevated acao-secundaria" @click="abrirModalComprar(material)">
+                    <span class="v-btn__overlay"></span>
+                    <span class="v-btn__underlay"></span>
+                    <span data-no-activator="" class="v-btn__content">
+                      <i aria-hidden="true" class="mdi-plus mdi v-icon notranslate v-theme--light v-icon--size-default"></i>
+                      Comprar
+                    </span>
+                  </button>
+                </td>
+                <td>
+                  <button class="v-btn v-btn--elevated v-btn--icon v-theme--light v-btn--density-default v-btn--size-default v-btn--variant-elevated acao-secundaria" @click="abrirModalProducao(material)">
+                    <span class="v-btn__overlay"></span>
+                    <span class="v-btn__underlay"></span>
+                    <span data-no-activator="" class="v-btn__content">
+                      <i aria-hidden="true" class="mdi-plus mdi v-icon notranslate v-theme--light v-icon--size-default"></i>
+                      Produzir
+                    </span>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="margem">
+            <button class="btn btn-primary" @click="salvarProduto">Salvar</button>
+            <button class="btn btn-secondary" @click="fecharModal">Cancelar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Comprar Material -->
+    <div v-if="showModalComprar" class="modal-overlay" @click.self="fecharModalComprar">
+      <div class="modal-content">
+        <button class="modal-close" @click="fecharModalComprar">&times;</button>
+        <div class="bloco margem">
+          <h2>Solicitar Compra de Material</h2>
+          <form @submit.prevent="confirmarCompra">
+            <div class="grid-3">
+              <div class="form-group">
+                <label>Produto</label>
+                <input type="text" v-model="materialSelecionado.nome" readonly="readonly" class="form-control">
+              </div>
+              <div class="form-group">
+                <label>Quantidade</label>
+                <input type="number" v-model="quantidadeCompra" min="1" class="form-control">
+              </div>
+              <div class="form-group">
+                <label>Previsão de Entrega</label>
+                <input type="date" v-model="previsaoEntrega" class="form-control">
+              </div>
+            </div>
+            <div class="grid-2">
+              <div class="form-group">
+                <label>Sugestão de Fornecedor</label>
+                <select v-model="fornecedorSelecionado" class="form-control">
+                  <option value="">Selecione um fornecedor</option>
+                  <option value="1">Fornecedor A</option>
+                  <option value="2">Fornecedor B</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Observações</label>
+              <textarea v-model="observacoesCompra" rows="3" class="form-control"></textarea>
+            </div>
+            <div class="margem">
+              <button type="submit" class="btn btn-primary">Confirmar Pedido de Compra</button>
+              <button type="button" class="btn btn-secondary" @click="fecharModalComprar">Cancelar</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Produção -->
+    <div v-if="showModalProducao" class="modal-overlay" @click.self="fecharModalProducao">
+      <div class="modal-content">
+        <button class="modal-close" @click="fecharModalProducao">&times;</button>
+        <div class="bloco margem">
+          <h2>Criar Ordem de Produção</h2>
+          <div class="bloco">
+            <div class="margem grid-3">
+              <div>
+                <label>Produto</label>
+                <input type="text" v-model="materialSelecionado.nome" readonly="readonly">
+              </div>
+              <div>
+                <label>Previsão de Conclusão</label>
+                <input type="date" v-model="previsaoConclusao">
+              </div>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+              <button type="button" class="v-btn v-btn--elevated v-btn--icon v-theme--light v-btn--density-default v-btn--size-default v-btn--variant-elevated acao-secundaria" @click="adicionarDestino">
+                <span class="v-btn__overlay"></span>
+                <span class="v-btn__underlay"></span>
+                <span data-no-activator="" class="v-btn__content">
+                  <i aria-hidden="true" class="mdi-plus mdi v-icon notranslate v-theme--light v-icon--size-default"></i>
+                </span>
+              </button>
+            </div>
+            <table class="tabela">
+              <tbody>
+                <tr>
+                  <th scope="col" style="white-space: nowrap;">Destino</th>
+                  <th scope="col" style="white-space: nowrap;">Quantidade</th>
+                  <th scope="col" style="white-space: nowrap;">Anexo</th>
+                </tr>
+                <tr v-for="(destino, index) in destinos" :key="index" style="cursor: pointer;">
+                  <td>
+                    <select v-model="destino.nome" class="form-control">
+                      <option value="COFERMETA SA">COFERMETA SA</option>
+                      <option value="USINA ALTO VERDE">USINA ALTO VERDE</option>
+                      <option value="ESTOQUE">ESTOQUE</option>
+                    </select>
+                  </td>
+                  <td><input type="text" size="7" v-model="destino.quantidade"></td>
+                  <td><input type="text" v-model="destino.anexo"></td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="margem grid-3">
+              <div>
+                <label>Quantidade a Produzir</label>
+                <input type="number" v-model="quantidadeProducao">
+              </div>
+            </div>
+          </div>
+          <div class="bloco margem">
+            <h3>Itens do Produto</h3>
+            <br>
+            <table class="tabela">
+              <tbody>
+                <tr>
+                  <th scope="col" style="white-space: nowrap;">Item</th>
+                  <th scope="col" style="white-space: nowrap;">Quantidade</th>
+                </tr>
+                <tr v-for="(item, index) in itensProduto" :key="index" style="cursor: pointer;">
+                  <td>{{ item.nome }}</td>
+                  <td><input type="text" size="7" v-model="item.quantidade"></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="bloco margem">
+            <h3>Informações Adicionais</h3>
+            <br>
+            <div class="grid-2">
+              <div>
+                <label>Data de Início da Produção</label>
+                <input type="date" v-model="dataInicioProducao">
+              </div>
+              <div>
+                <label>Data de Conclusão da Produção</label>
+                <input type="date" v-model="dataConclusaoProducao">
+              </div>
+            </div>
+          </div>
+          <div class="bloco margem">
+            <h3>Observações</h3>
+            <br>
+            <div>
+              <textarea v-model="observacoesProducao"></textarea>
+            </div>
+          </div>
+          <div class="submit direita margem">
+            <button class="btn btn-primary" @click="salvarProducao">Salvar</button>
+            <button class="btn btn-secondary" @click="fecharModalProducao">Cancelar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    new Vue({
+      el: '#produtos-acabados',
+      data: {
+        abaAtiva: 'kanban',
+        showModal: false,
+        showModalComprar: false,
+        showModalProducao: false,
+        produtoSelecionado: {
+          codigo: '',
+          quantidade: 0,
+          localizacao: ''
+        },
+        materialSelecionado: {
+          nome: ''
+        },
+        quantidadeCompra: 1,
+        previsaoEntrega: '',
+        fornecedorSelecionado: '',
+        observacoesCompra: '',
+        dataInicioProducao: '',
+        dataConclusaoProducao: '',
+        observacoesProducao: '',
+        quantidadeProducao: 0,
+        materiais: [
+          {
+            nome: 'Material A',
+            estoque: '100 unidades',
+            quantidade: ''
+          },
+          {
+            nome: 'Material B',
+            estoque: '50 unidades',
+            quantidade: ''
+          }
+        ],
+        destinos: [],
+        itensProduto: [],
+        kanban: {
+          'Produtos em Estoque': [
+            {
+              titulo: 'Produto A',
+              codigo: 'PA001',
+              quantidade: '100 unidades'
+            },
+            {
+              titulo: 'Produto B',
+              codigo: 'PB002',
+              quantidade: '50 unidades'
+            }
+          ],
+          'Produtos em Expedição': [
+            {
+              titulo: 'Produto C',
+              codigo: 'PC003',
+              quantidade: '30 unidades'
+            },
+            {
+              titulo: 'Produto D',
+              codigo: 'PD004',
+              quantidade: '20 unidades'
+            }
+          ]
+        }
+      },
+      methods: {
+        mudarAba(aba) {
+          this.abaAtiva = aba;
+        },
+        abrirModalProduto(produto) {
+          this.produtoSelecionado = {
+            codigo: produto.codigo,
+            quantidade: parseInt(produto.quantidade),
+            localizacao: 'Estoque Principal'
+          };
+          this.showModal = true;
+        },
+        fecharModal() {
+          this.showModal = false;
+          this.produtoSelecionado = {
+            codigo: '',
+            quantidade: 0,
+            localizacao: ''
+          };
+        },
+        abrirModalComprar(material) {
+          this.materialSelecionado = {
+            nome: material.nome
+          };
+          this.showModalComprar = true;
+        },
+        fecharModalComprar() {
+          this.showModalComprar = false;
+          this.materialSelecionado = {
+            nome: ''
+          };
+        },
+        abrirModalProducao(material) {
+          this.materialSelecionado = {
+            nome: material.nome
+          };
+          this.showModalProducao = true;
+        },
+        fecharModalProducao() {
+          this.showModalProducao = false;
+          this.materialSelecionado = {
+            nome: ''
+          };
+        },
+        salvarProduto() {
+          // Validar dados antes de salvar
+          if (!this.validarProduto()) {
+            return;
+          }
+
+          // Atualizar o produto no kanban
+          const colunas = ['Produtos em Estoque', 'Produtos em Expedição'];
+          for (const coluna of colunas) {
+            const index = this.kanban[coluna].findIndex(p => p.codigo === this.produtoSelecionado.codigo);
+            if (index !== -1) {
+              this.kanban[coluna][index].quantidade = this.produtoSelecionado.quantidade + ' unidades';
+              break;
+            }
+          }
+
+          console.log('Dados do produto:', this.produtoSelecionado);
+          alert('Produto atualizado com sucesso!');
+          this.fecharModal();
+        },
+        validarProduto() {
+          if (!this.produtoSelecionado.codigo) {
+            alert('Selecione um produto');
+            return false;
+          }
+
+          if (this.produtoSelecionado.quantidade <= 0) {
+            alert('A quantidade deve ser maior que zero');
+            return false;
+          }
+
+          return true;
+        },
+        onEnd(evt) {
+          console.log('Card movido:', evt);
+        },
+        adicionarDestino() {
+          this.destinos.push({
+            nome: '',
+            quantidade: '',
+            anexo: ''
+          });
+        },
+        salvarProducao() {
+          // Validar dados antes de salvar
+          if (!this.validarProducao()) {
+            return;
+          }
+
+          console.log('Dados da produção:', {
+            material: this.materialSelecionado,
+            previsaoConclusao: this.previsaoConclusao,
+            destinos: this.destinos,
+            quantidadeProducao: this.quantidadeProducao,
+            itensProduto: this.itensProduto,
+            dataInicioProducao: this.dataInicioProducao,
+            dataConclusaoProducao: this.dataConclusaoProducao,
+            observacoesProducao: this.observacoesProducao
+          });
+          alert('Ordem de produção criada com sucesso!');
+          this.fecharModalProducao();
+        },
+        validarProducao() {
+          if (!this.materialSelecionado.nome) {
+            alert('Selecione um produto');
+            return false;
+          }
+
+          if (this.previsaoConclusao === '') {
+            alert('Selecione uma previsão de conclusão');
+            return false;
+          }
+
+          if (this.destinos.length === 0) {
+            alert('Adicione pelo menos um destino');
+            return false;
+          }
+
+          if (this.quantidadeProducao <= 0) {
+            alert('A quantidade a produzir deve ser maior que zero');
+            return false;
+          }
+
+          return true;
+        },
+        confirmarCompra() {
+          // Validar dados antes de confirmar a compra
+          if (!this.validarCompra()) {
+            return;
+          }
+
+          console.log('Dados da compra:', {
+            material: this.materialSelecionado,
+            quantidadeCompra: this.quantidadeCompra,
+            previsaoEntrega: this.previsaoEntrega,
+            fornecedorSelecionado: this.fornecedorSelecionado,
+            observacoesCompra: this.observacoesCompra
+          });
+          alert('Pedido de compra confirmado com sucesso!');
+          this.fecharModalComprar();
+        },
+        validarCompra() {
+          if (!this.materialSelecionado.nome) {
+            alert('Selecione um produto');
+            return false;
+          }
+
+          if (this.quantidadeCompra <= 0) {
+            alert('A quantidade deve ser maior que zero');
+            return false;
+          }
+
+          if (this.previsaoEntrega === '') {
+            alert('Selecione uma previsão de entrega');
+            return false;
+          }
+
+          return true;
+        }
+      }
+    });
+  </script>
+</body>
+</html> 
