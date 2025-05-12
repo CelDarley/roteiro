@@ -38,7 +38,7 @@
                 padding: var(--margem) !important;
                 box-sizing: border-box;
             }
-            .setor-listbox {
+            .setor-listbox, .servico-listbox {
                 width: 100%;
                 box-sizing: border-box;
                 border: 1px solid var(--cor-separador);
@@ -50,26 +50,66 @@
                 cursor: pointer;
                 margin: 5px 0;
             }
-            .setor-listbox:hover {
+            .setor-listbox:hover, .servico-listbox:hover {
                 background-color: var(--cor-primaria-fraca);
             }
-            .servico-table {
-                width: 100%;
-                border-collapse: collapse;
+            .detalhes-servico {
                 margin-top: 20px;
-                box-sizing: border-box;
-            }
-            .servico-table th, .servico-table td {
-                padding: 10px;
+                padding: var(--margem);
                 border: 1px solid var(--cor-separador);
-                text-align: left;
+                border-radius: 4px;
+                background-color: var(--cor-bg);
             }
-            .servico-table th {
-                background-color: var(--cor-primaria-fraca);
+            .detalhes-servico h3 {
+                margin-top: 0;
+                color: var(--cor-texto);
             }
-            .acao-btn {
-                cursor: pointer;
+            .lista-materiais {
+                list-style: none;
+                padding: 0;
+                margin: 10px 0;
+            }
+            .lista-materiais li {
+                padding: 8px;
+                border-bottom: 1px solid var(--cor-separador);
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            .lista-materiais li:last-child {
+                border-bottom: none;
+            }
+            .btn-excluir {
+                background: none;
+                border: none;
                 color: var(--cor-erro);
+                cursor: pointer;
+                padding: 4px 8px;
+                font-size: 16px;
+                border-radius: 4px;
+                transition: background-color 0.2s;
+            }
+            .btn-excluir:hover {
+                background-color: var(--cor-erro-fraca);
+            }
+            .btn-adicionar {
+                background: none;
+                border: none;
+                color: var(--cor-sucesso);
+                cursor: pointer;
+                padding: 4px 8px;
+                font-size: 16px;
+                border-radius: 4px;
+                transition: background-color 0.2s;
+                margin-right: 10px;
+            }
+            .btn-adicionar:hover {
+                background-color: var(--cor-sucesso-fraca);
+            }
+            .cabecalho-lista {
+                display: flex;
+                align-items: center;
+                margin-bottom: 10px;
             }
             .modal {
                 display: none;
@@ -79,23 +119,251 @@
                 width: 100%;
                 height: 100%;
                 background-color: rgba(0,0,0,0.5);
+                z-index: 1000;
             }
             .modal-content {
                 background-color: var(--cor-bg);
                 margin: 15% auto;
                 padding: 20px;
-                width: 70%;
-                border-radius: 5px;
+                width: 50%;
+                border-radius: 4px;
+                position: relative;
+            }
+            .modal-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 20px;
+            }
+            .modal-header h3 {
+                margin: 0;
+                color: var(--cor-texto);
+            }
+            .btn-fechar {
+                background: none;
+                border: none;
+                color: var(--cor-texto);
+                font-size: 20px;
+                cursor: pointer;
+                padding: 0;
+            }
+            .modal-body {
+                margin-bottom: 20px;
+            }
+            .modal-footer {
+                text-align: right;
+            }
+            .btn-confirmar {
+                background-color: var(--cor-sucesso);
+                color: white;
+                border: none;
+                padding: 8px 16px;
+                border-radius: 4px;
+                cursor: pointer;
+            }
+            .btn-confirmar:hover {
+                background-color: var(--cor-sucesso-escura);
+            }
+            .campo-formulario {
+                margin: 15px 0;
+            }
+            .campo-formulario label {
+                display: block;
+                margin-bottom: 5px;
+                color: var(--cor-texto);
+                font-weight: bold;
+            }
+            .campo-formulario input[type="text"],
+            .campo-formulario textarea {
+                width: 100%;
+                padding: 8px;
+                border: 1px solid var(--cor-separador);
+                border-radius: 4px;
+                background-color: var(--cor-bg);
+                color: var(--cor-texto);
+                box-sizing: border-box;
+            }
+            .campo-formulario textarea {
+                min-height: 100px;
+                resize: vertical;
+            }
+            .campo-formulario input[type="file"] {
+                width: 100%;
+                padding: 8px;
+                border: 1px solid var(--cor-separador);
+                border-radius: 4px;
+                background-color: var(--cor-bg);
+                color: var(--cor-texto);
+                box-sizing: border-box;
+            }
+            .bloco h2 {
+                margin: 0;
+                padding: 0;
+                font-size: 1.2em;
+                font-weight: bold;
             }
         </style>
     </head>
     <body>
         <div class="container margem">
-            <div class="card bloco margem">
+
+            <div id="bl1" class="card bloco margem">
+                <h2>Cadastro </h2>
+                <div data-v-2e3b20c7="" class="grid-4">
+                    <div data-v-2e3b20c7="">
+                        <label data-v-2e3b20c7="">Código do Produto</label>
+                        <input data-v-2e3b20c7="" type="text" required="" value="CST0410031 - Case Magnetica XPTO"></div>
+                        <div data-v-2e3b20c7="">
+                            <label data-v-2e3b20c7="">Descrição</label>
+                            <textarea data-v-2e3b20c7="" type="text" required="">
+
+                            </textarea>
+                        </div>
+                        <div data-v-2e3b20c7="">
+                            <label data-v-2e3b20c7="">Unidade <i data-v-2e3b20c7="" title="Editar unidade"></i></label>
+                            <select data-v-2e3b20c7=""><option data-v-2e3b20c7="" value="(EB)">Exabyte</option><option data-v-2e3b20c7="" value="%">%</option><option data-v-2e3b20c7="" value="01">01</option><option data-v-2e3b20c7="" value="03">03</option><option data-v-2e3b20c7="" value="1">1</option><option data-v-2e3b20c7="" value="1 UNID">1 UNID</option><option data-v-2e3b20c7="" value="1,000">1,000</option><option data-v-2e3b20c7="" value="1/4">1/4</option><option data-v-2e3b20c7="" value="1000">1000</option><option data-v-2e3b20c7="" value="1000UN">1000UN</option><option data-v-2e3b20c7="" value="12X4">12X4</option><option data-v-2e3b20c7="" value="12X5">12X5</option><option data-v-2e3b20c7="" value="12x7">12x7</option><option data-v-2e3b20c7="" value="15ML">15 Mililitro</option><option data-v-2e3b20c7="" value="15x7">15x7</option><option data-v-2e3b20c7="" value="18x18">18x18</option><option data-v-2e3b20c7="" value="18x4x4">18x4x4</option><option data-v-2e3b20c7="" value="1UN">Unidade</option><option data-v-2e3b20c7="" value="2">2</option><option data-v-2e3b20c7="" value="21X24">21X24</option><option data-v-2e3b20c7="" value="25 G">25 Gramas</option><option data-v-2e3b20c7="" value="2MI">2 milheiros</option><option data-v-2e3b20c7="" value="350">350</option><option data-v-2e3b20c7="" value="3MI">3 Milheiros</option><option data-v-2e3b20c7="" value="4C">4 Cilindros</option><option data-v-2e3b20c7="" value="6UN6">6UN6</option><option data-v-2e3b20c7="" value="8X16X8">8X16X8</option><option data-v-2e3b20c7="" value="AM">Unidade</option><option data-v-2e3b20c7="" value="AMP">Peça</option><option data-v-2e3b20c7="" value="AMPOLA">Ampola</option><option data-v-2e3b20c7="" value="AP">Aparelho</option><option data-v-2e3b20c7="" value="AR">Arroba</option><option data-v-2e3b20c7="" value="AT">Atado</option><option data-v-2e3b20c7="" value="AU">AU</option><option data-v-2e3b20c7="" value="B20">Bombona 20</option><option data-v-2e3b20c7="" value="B5">Bombona 5</option><option data-v-2e3b20c7="" value="B50">Bombona 50</option><option data-v-2e3b20c7="" value="B70">Bombona 70</option><option data-v-2e3b20c7="" value="BA">Lata</option><option data-v-2e3b20c7="" value="BAG">Saco</option><option data-v-2e3b20c7="" value="BALDE">Balde</option><option data-v-2e3b20c7="" value="BAN">Bandeja</option><option data-v-2e3b20c7="" value="BAR">Barrica</option><option data-v-2e3b20c7="" value="BARRA">Barra</option><option data-v-2e3b20c7="" value="BARRIL">Barril</option><option data-v-2e3b20c7="" value="BB">Bombona</option><option data-v-2e3b20c7="" value="BB 30">Bombona 30 litros</option><option data-v-2e3b20c7="" value="BB 5L">Bombona 5 litros</option><option data-v-2e3b20c7="" value="BBX20">Balde de 20 litros</option><option data-v-2e3b20c7="" value="BD">Balde</option><option data-v-2e3b20c7="" value="BD 2,5">Balde 2,5 KG</option><option data-v-2e3b20c7="" value="BD1">Balde 1un</option><option data-v-2e3b20c7="" value="BDJ">Bandeja</option><option data-v-2e3b20c7="" value="BG">Saco</option><option data-v-2e3b20c7="" value="BI">Bisnaga</option><option data-v-2e3b20c7="" value="BIS">Bisnaga</option><option data-v-2e3b20c7="" value="BJ">Botija</option><option data-v-2e3b20c7="" value="BJA">Bandeja</option><option data-v-2e3b20c7="" value="BL">Bloco</option><option data-v-2e3b20c7="" value="BLD">Balde</option><option data-v-2e3b20c7="" value="BLIS">Blister</option><option data-v-2e3b20c7="" value="BN">Bandeja</option><option data-v-2e3b20c7="" value="BND">Bandeja</option><option data-v-2e3b20c7="" value="BNG">Bisnaga</option><option data-v-2e3b20c7="" value="BO">Bobina</option><option data-v-2e3b20c7="" value="BOB">Bobina</option><option data-v-2e3b20c7="" value="BOBINA">Bobina</option><option data-v-2e3b20c7="" value="BR">Barra</option><option data-v-2e3b20c7="" value="BRL">Barril</option><option data-v-2e3b20c7="" value="BRR">Barril</option><option data-v-2e3b20c7="" value="BRS">BRS</option><option data-v-2e3b20c7="" value="BS">Base</option><option data-v-2e3b20c7="" value="BSA">Bolsa</option><option data-v-2e3b20c7="" value="BT">Booster</option><option data-v-2e3b20c7="" value="BX">Box</option><option data-v-2e3b20c7="" value="CA">Cartucho</option><option data-v-2e3b20c7="" value="CAB">Cabeça</option><option data-v-2e3b20c7="" value="CADA">Cada</option><option data-v-2e3b20c7="" value="CAI">Caixa</option><option data-v-2e3b20c7="" value="CAIXA">Caixa</option><option data-v-2e3b20c7="" value="CAIXAS">Caixa</option><option data-v-2e3b20c7="" value="CANETA">Caneta</option><option data-v-2e3b20c7="" value="CAPS">Cápsula</option><option data-v-2e3b20c7="" value="CAR">Carrada</option><option data-v-2e3b20c7="" value="CB">Cabeça</option><option data-v-2e3b20c7="" value="CBM">Metro Cúbico</option><option data-v-2e3b20c7="" value="CDA">Cada</option><option data-v-2e3b20c7="" value="CE">Cento</option><option data-v-2e3b20c7="" value="CENT">Cento</option><option data-v-2e3b20c7="" value="CENTO">Cento</option><option data-v-2e3b20c7="" value="CF">Caixa Fechada</option><option data-v-2e3b20c7="" value="CG">Carga</option><option data-v-2e3b20c7="" value="CH">Chapa</option><option data-v-2e3b20c7="" value="CI">Cilindro</option><option data-v-2e3b20c7="" value="CIL">Cilindro</option><option data-v-2e3b20c7="" value="CILIND">Cilindro</option><option data-v-2e3b20c7="" value="CJ">Conjunto</option><option data-v-2e3b20c7="" value="CJ1">Conjunto</option><option data-v-2e3b20c7="" value="CJT">Conjunto</option><option data-v-2e3b20c7="" value="CJTO">Conjunto</option><option data-v-2e3b20c7="" value="CL">Cilindro</option><option data-v-2e3b20c7="" value="CM">Centímetro</option><option data-v-2e3b20c7="" value="CM2">Centímetro Quadrado</option><option data-v-2e3b20c7="" value="CM3">Centímetro Cúbico</option><option data-v-2e3b20c7="" value="CMB">Combo</option><option data-v-2e3b20c7="" value="CMC">Cem Metro Quadrado</option><option data-v-2e3b20c7="" value="CN">Container</option><option data-v-2e3b20c7="" value="CNT">Cento</option><option data-v-2e3b20c7="" value="CO">Copo</option><option data-v-2e3b20c7="" value="COL">Coletor</option><option data-v-2e3b20c7="" value="COMP">Comprimido</option><option data-v-2e3b20c7="" value="CON">Cone</option><option data-v-2e3b20c7="" value="CONJUN">Conjunto</option><option data-v-2e3b20c7="" value="CONT">Container</option><option data-v-2e3b20c7="" value="COPO">Copo</option><option data-v-2e3b20c7="" value="COR">Cordão</option><option data-v-2e3b20c7="" value="CPR">Comprimido</option><option data-v-2e3b20c7="" value="CR">Cartucho</option><option data-v-2e3b20c7="" value="CRT">Carretel</option><option data-v-2e3b20c7="" value="CS">Cápsula</option><option data-v-2e3b20c7="" value="CT">Quilate</option><option data-v-2e3b20c7="" value="CT1400">Container 1.400kg</option><option data-v-2e3b20c7="" value="CTA">Caixeta</option><option data-v-2e3b20c7="" value="CTC">Cartucho</option><option data-v-2e3b20c7="" value="CTL">Cartela</option><option data-v-2e3b20c7="" value="CTN">Container</option><option data-v-2e3b20c7="" value="CTP">100 Itens</option><option data-v-2e3b20c7="" value="CU">Côvado</option><option data-v-2e3b20c7="" value="CUIA">Cuia</option><option data-v-2e3b20c7="" value="CUM">Cumbuca</option><option data-v-2e3b20c7="" value="CX">Caixa</option><option data-v-2e3b20c7="" value="CX 30">Caixa com 30</option><option data-v-2e3b20c7="" value="CX 40">Caixa com 40</option><option data-v-2e3b20c7="" value="CX.">Caixa</option><option data-v-2e3b20c7="" value="CX03">Caixa com 3</option><option data-v-2e3b20c7="" value="CX04">Caixa com 4</option><option data-v-2e3b20c7="" value="CX06">Caixa com 06</option><option data-v-2e3b20c7="" value="CX08">Caixa com 8</option><option data-v-2e3b20c7="" value="CX10">Caixa com 10</option><option data-v-2e3b20c7="" value="CX100">Caixa com 100</option><option data-v-2e3b20c7="" value="CX12">Caixa com 12</option><option data-v-2e3b20c7="" value="CX120">Caixa com 120</option><option data-v-2e3b20c7="" value="CX13">Caixa com 13</option><option data-v-2e3b20c7="" value="CX144">Caixa c/144 unid</option><option data-v-2e3b20c7="" value="CX15">Caixa com 15</option><option data-v-2e3b20c7="" value="CX16">Caixa com 16</option><option data-v-2e3b20c7="" value="CX18">Caixa com 18</option><option data-v-2e3b20c7="" value="CX2">Caixa com 2</option><option data-v-2e3b20c7="" value="CX20">Caixa com 20</option><option data-v-2e3b20c7="" value="CX200">Caixa com 200</option><option data-v-2e3b20c7="" value="CX21">Caixa com 21</option><option data-v-2e3b20c7="" value="CX24">Caixa com 24</option><option data-v-2e3b20c7="" value="CX25">Caixa com 25</option><option data-v-2e3b20c7="" value="CX26">Caixa com 26</option><option data-v-2e3b20c7="" value="CX27">Caixa com 27</option><option data-v-2e3b20c7="" value="CX28">Caixa com 28</option><option data-v-2e3b20c7="" value="CX3">Caixa com 3</option><option data-v-2e3b20c7="" value="CX36">Caixa com 36</option><option data-v-2e3b20c7="" value="CX42">Caixa com 42</option><option data-v-2e3b20c7="" value="CX48">Caixa com 48</option><option data-v-2e3b20c7="" value="CX5">Caixa com 5</option><option data-v-2e3b20c7="" value="CX50">Caixa com 50</option><option data-v-2e3b20c7="" value="CX6">Caixa com 6</option><option data-v-2e3b20c7="" value="CX6UND">CX6UND</option><option data-v-2e3b20c7="" value="CX80">Caixa com 80</option><option data-v-2e3b20c7="" value="CX84">Caixa com 84</option><option data-v-2e3b20c7="" value="CX9">Caixa com 9</option><option data-v-2e3b20c7="" value="CX96">Caixa com 96</option><option data-v-2e3b20c7="" value="CXA">Caixa</option><option data-v-2e3b20c7="" value="CXA1">CXA1</option><option data-v-2e3b20c7="" value="CXB">Caixa Bombona</option><option data-v-2e3b20c7="" value="CXC">Caixa</option><option data-v-2e3b20c7="" value="CXI">Caixa</option><option data-v-2e3b20c7="" value="CXPET">Caixa Pet</option><option data-v-2e3b20c7="" value="CXS">Caixa</option><option data-v-2e3b20c7="" value="CXT12">Caixote com 12</option>
+                            <option data-v-2e3b20c7="" value="CXT15">Caixote com 15</option><option data-v-2e3b20c7="" value="CXT18">Caixote com 18</option><option data-v-2e3b20c7="" value="CXT20">Caixote com 20</option>
+                            <option data-v-2e3b20c7="" value="CXT24">Caixote com 24</option><option data-v-2e3b20c7="" value="CXTE">Caixote</option><option data-v-2e3b20c7="" value="DEZ">Dezena</option>
+                            <option data-v-2e3b20c7="" value="DEZENA">Dezena</option>
+                            </select>
+                        </div>
+                        <div data-v-2e3b20c7=""><label data-v-2e3b20c7="">Família</label><select data-v-2e3b20c7=""><option data-v-2e3b20c7="" value="1">CONJUNTO</option><option data-v-2e3b20c7="" value="2">CASE</option><option data-v-2e3b20c7="" value="3">CASE 8"</option><option data-v-2e3b20c7="" value="4">CASE 9-10,1"</option><option data-v-2e3b20c7="" value="5">BRAÇO</option><option data-v-2e3b20c7="" value="6">BASES</option><option data-v-2e3b20c7="" value="7">CONVERSOR</option><option data-v-2e3b20c7="" value="8">CASE SMARTPHONE</option><option data-v-2e3b20c7="" value="9">DOCK</option><option data-v-2e3b20c7="" value="10">PLUG</option><option data-v-2e3b20c7="" value="11">PROJETO</option><option data-v-2e3b20c7="" value="12">ACESSÓRIOS</option><option data-v-2e3b20c7="" value="13">TABLET</option><option data-v-2e3b20c7="" value="14">CABOS</option><option data-v-2e3b20c7="" value="15">SUPORTES</option><option data-v-2e3b20c7="" value="16">Materiais de Embalagem</option><option data-v-2e3b20c7="" value="17">Autocolantes</option><option data-v-2e3b20c7="" value="18">Fixadores</option><option data-v-2e3b20c7="" value="19">Injetados Externos</option><option data-v-2e3b20c7="" value="20">Eletroeletrônicos</option><option data-v-2e3b20c7="" value="21">Usinados</option><option data-v-2e3b20c7="" value="22">Peça Matéria Prima</option><option data-v-2e3b20c7="" value="23">Peça Mecânica</option><option data-v-2e3b20c7="" value="24">Importados</option><option data-v-2e3b20c7="" value="25">Resinados</option><option data-v-2e3b20c7="" value="26">Preparados</option><option data-v-2e3b20c7="" value="27">Injetados Internos</option><option data-v-2e3b20c7="" value="28">Montados</option><option data-v-2e3b20c7="" value="29">Insumos Produtivos</option><option data-v-2e3b20c7="" value="30">Insumos Fabris</option><option data-v-2e3b20c7="" value="31">Material Administrativo Consumível</option><option data-v-2e3b20c7="" value="32">Ferramentas Consumíveis</option><option data-v-2e3b20c7="" value="33">Material para Manutenção e Reparo</option><option data-v-2e3b20c7="" value="34">Pesquisa e Desenvolvimento</option><option data-v-2e3b20c7="" value="35">Material Imobilizado</option><option data-v-2e3b20c7="" value="36">Ferramentas Imobilizadas</option><option data-v-2e3b20c7="" value="37">Resíduos</option><option data-v-2e3b20c7="" value="38">HUB</option><option data-v-2e3b20c7="" value="39">DEDICADO</option><option data-v-2e3b20c7="" value="40">ADAPTADOR</option></select></div>
+               </div>
+               <div data-v-2e3b20c7="" class="grid-4">
+                      
+                <div data-v-2e3b20c7="">
+                    <label data-v-2e3b20c7="">Tipo do Produto</label>
+                    <select data-v-2e3b20c7="">
+                        <option data-v-2e3b20c7="" value="1">Mercadoria para Revenda</option>
+                        <option data-v-2e3b20c7="" value="2">Matéria Prima</option>
+                        <option data-v-2e3b20c7="" value="3">Embalagem</option>
+                        <option data-v-2e3b20c7="" value="4">Produto em Processo</option>
+                        <option data-v-2e3b20c7="" value="5">Produto Acabado</option>
+                        <option data-v-2e3b20c7="" value="6">Subproduto</option>
+                    </select>
+                </div>
+                
+                <div data-v-2e3b20c7="">
+                    <label data-v-2e3b20c7="">Linha <i data-v-2e3b20c7="" title="Editar Linhas" class="bi bi-gear-fill adicionarItem"></i></label>
+                    <select data-v-2e3b20c7="">
+                        <option data-v-2e3b20c7="" value="1">Lite</option>
+                        <option data-v-2e3b20c7="" value="2">Hard</option>
+                        <option data-v-2e3b20c7="" value="8">N/A</option>
+                    </select>
+                </div>
+                
+                <div data-v-2e3b20c7="">
+                    <label data-v-2e3b20c7="">Modelo <i data-v-2e3b20c7="" title="Editar Modelos" class="bi bi-gear-fill adicionarItem"></i></label>
+                    <select data-v-2e3b20c7="">
+                        <option data-v-2e3b20c7="" value="1">Termic</option>
+                        <option data-v-2e3b20c7="" value="2">Impact</option>
+                        <option data-v-2e3b20c7="" value="3">Extreme</option>
+                        <option data-v-2e3b20c7="" value="4">Explosion</option>
+                        <option data-v-2e3b20c7="" value="5">Vision</option>
+                        <option data-v-2e3b20c7="" value="8">Manipulo</option>
+                        <option data-v-2e3b20c7="" value="9">N/A</option>
+                        <option data-v-2e3b20c7="" value="10">Automotiva</option>
+                        <option data-v-2e3b20c7="" value="11">Indoor</option>
+                        <option data-v-2e3b20c7="" value="12">5 Pinos</option>
+                    </select>
+                </div>
+                
+                <div data-v-2e3b20c7="">
+                    <label data-v-2e3b20c7="">Fixação <i data-v-2e3b20c7="" title="Editar Fixações" class="bi bi-gear-fill adicionarItem"></i></label>
+                    <select data-v-2e3b20c7="">
+                        <option data-v-2e3b20c7="" value="1">Parafusada</option>
+                        <option data-v-2e3b20c7="" value="2">Magnética</option>
+                        <option data-v-2e3b20c7="" value="3">Sem Fixação</option>
+                        <option data-v-2e3b20c7="" value="7">Adesivada</option>
+                        <option data-v-2e3b20c7="" value="8">Esfera</option>
+                    </select>
+                </div>
+               </div>
+                
+               <div data-v-2e3b20c7="" class="grid-4">
+
+                <div data-v-2e3b20c7="">
+                    <label data-v-2e3b20c7="">Tamanho <i data-v-2e3b20c7="" title="Editar Tamanhos" class="bi bi-gear-fill adicionarItem"></i></label>
+                    <select data-v-2e3b20c7="">
+                        <option data-v-2e3b20c7="" value="1">06 a 07</option>
+                        <option data-v-2e3b20c7="" value="2">08 a 09</option>
+                        <option data-v-2e3b20c7="" value="3">10 a 11</option>
+                        <option data-v-2e3b20c7="" value="4">12 a 13</option>
+                    </select>
+                </div>
+                
+                <div data-v-2e3b20c7="">
+                    <label data-v-2e3b20c7="">Tablet <i data-v-2e3b20c7="" title="Editar Tablet" class="bi bi-gear-fill adicionarItem"></i></label>
+                    <select data-v-2e3b20c7="">
+                        <option data-v-2e3b20c7=""></option>
+                    </select>
+                </div>
+                
+                <div data-v-2e3b20c7="">
+                    <label data-v-2e3b20c7="">Versão <i data-v-2e3b20c7="" title="Editar Versão" class="bi bi-gear-fill adicionarItem"></i></label>
+                    <select data-v-2e3b20c7="">
+                        <option data-v-2e3b20c7=""></option>
+                    </select>
+                </div>
+                
+                <div data-v-2e3b20c7="">
+                    <label data-v-2e3b20c7="">Status</label>
+                    <select data-v-2e3b20c7="">
+                        <option data-v-2e3b20c7="" value="1">Ativo</option>
+                        <option data-v-2e3b20c7="" value="0">Desativado</option>
+                    </select>
+                </div>
+            </div>
+                
+                <br data-v-2e3b20c7="">
+                
+                <div data-v-2e3b20c7="" class="grid-4">
+                    <div data-v-2e3b20c7="">
+                        <label data-v-2e3b20c7="">Cor <i data-v-2e3b20c7="" title="Editar Tablet" class="bi bi-gear-fill adicionarItem"></i></label>
+                        <select data-v-2e3b20c7="">
+                            <option data-v-2e3b20c7=""></option>
+                        </select>
+                    </div>
+                    <div data-v-2e3b20c7="">
+                        <label data-v-2e3b20c7="">Versao modelo <i data-v-2e3b20c7="" title="Editar Tablet" class="bi bi-gear-fill adicionarItem"></i></label>
+                        <select data-v-2e3b20c7="">
+                            <option data-v-2e3b20c7=""></option>
+                        </select>
+                    </div>
+
+                </div>
+
+                <div data-v-2e3b20c7="" class="grid">
+                    <label data-v-2e3b20c7="">Especificações </label>
+                    <textarea></textarea>                
+                </div>
+                    
+                <div data-v-2e3b20c7="" class="grid">
+                    <label data-v-2e3b20c7="">Observações </label>
+                    <textarea></textarea>                
+                </div>
+                    
+            
+            </div>
+            
+            
+            <div id="bl2" id="estrutura" class="card bloco margem">
                 <h2>CST0410031 - Case Magnetica XPTO</h2>
+                <br>
+                <div style="margin-left: 20px;" id="lista1">
+                    <h3 onclick="atualizarTitulo(this)">RES030007 - BOTAO POWER VOLUME M7</h3>
+                    <h3 onclick="atualizarTitulo(this)">UDO030011 - Base Magnetica PRO + Fios 0,32MM</h3>
+                    <h3 onclick="atualizarTitulo(this)">PRE030147 - Kit Parafusos 3 X 10 PAN PH 1 - 8 UN Preto</h3>
+                </div>
+            </div>
+            
+            
+            <div id="bl3" class="card bloco margem">
+                <h2 id="h21">CST0410031 - Case Magnetica XPTO</h2>
             </div>
             
             <div class="card bloco margem">
+            
                 <h3>Setores</h3>
                 <select class="setor-listbox" onchange="selecionarSetor(this.value)">
                     <option value="">Selecione um setor</option>
@@ -104,22 +372,116 @@
                     <option value="Pintura">Pintura</option>
                 </select>
             </div>
-
+            <br>
             <div id="setores-container">
                 <!-- Os blocos de setores serão inseridos aqui -->
             </div>
         </div>
 
-        <!-- Modal -->
-        <div id="servicoModal" class="modal">
+        <!-- Modal de Materiais -->
+        <div id="modalMateriais" class="modal">
             <div class="modal-content">
-                <h2>Detalhes do Serviço</h2>
-                <p>Conteúdo do modal aqui...</p>
-                <button onclick="fecharModal()">Fechar</button>
+                <div class="modal-header">
+                    <h3>Adicionar Material</h3>
+                    <button class="btn-fechar" onclick="fecharModal('modalMateriais')">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="campo-formulario">
+                        <label for="listaMateriais">Material:</label>
+                        <select id="listaMateriais" class="servico-listbox">
+                            <option value="">Selecione um material</option>
+                            <option value="Cabo elétrico 2.5mm²">Cabo elétrico 2.5mm²</option>
+                            <option value="Terminal elétrico">Terminal elétrico</option>
+                            <option value="Tubo termorretrátil">Tubo termorretrátil</option>
+                            <option value="Parafuso M6">Parafuso M6</option>
+                            <option value="Arruela plana">Arruela plana</option>
+                            <option value="Porca M6">Porca M6</option>
+                            <option value="Insertos de aço">Insertos de aço</option>
+                            <option value="Lixa 220">Lixa 220</option>
+                            <option value="Óleo de corte">Óleo de corte</option>
+                        </select>
+                    </div>
+                    <div class="campo-formulario">
+                        <label for="quantidadeMaterial">Quantidade:</label>
+                        <input type="number" id="quantidadeMaterial" min="1" value="1" class="servico-listbox">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-confirmar" onclick="adicionarItem('materiais')">Adicionar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal de Ferramentas -->
+        <div id="modalFerramentas" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Adicionar Ferramenta</h3>
+                    <button class="btn-fechar" onclick="fecharModal('modalFerramentas')">×</button>
+                </div>
+                <div class="modal-body">
+                    <select id="listaFerramentas" class="servico-listbox">
+                        <option value="">Selecione uma ferramenta</option>
+                        <option value="Alicate de corte">Alicate de corte</option>
+                        <option value="Estilete">Estilete</option>
+                        <option value="Pistola de ar quente">Pistola de ar quente</option>
+                        <option value="Chave de fenda Phillips">Chave de fenda Phillips</option>
+                        <option value="Chave Allen 5mm">Chave Allen 5mm</option>
+                        <option value="Torquímetro">Torquímetro</option>
+                        <option value="Serra copo 25mm">Serra copo 25mm</option>
+                        <option value="Furadeira">Furadeira</option>
+                        <option value="Lixadeira orbital">Lixadeira orbital</option>
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-confirmar" onclick="adicionarItem('ferramentas')">Adicionar</button>
+                </div>
             </div>
         </div>
 
         <script>
+            const servicos = {
+                '001': {
+                    titulo: 'Cortar cabo na ponta',
+                    materiais: [
+                        { nome: 'Cabo elétrico 2.5mm²', quantidade: 2 },
+                        { nome: 'Terminal elétrico', quantidade: 4 },
+                        { nome: 'Tubo termorretrátil', quantidade: 1 }
+                    ],
+                    ferramentas: [
+                        'Alicate de corte',
+                        'Estilete',
+                        'Pistola de ar quente'
+                    ]
+                },
+                '002': {
+                    titulo: 'Fixar parafuso no pino',
+                    materiais: [
+                        { nome: 'Parafuso M6', quantidade: 6 },
+                        { nome: 'Arruela plana', quantidade: 6 },
+                        { nome: 'Porca M6', quantidade: 6 }
+                    ],
+                    ferramentas: [
+                        'Chave de fenda Phillips',
+                        'Chave Allen 5mm',
+                        'Torquímetro'
+                    ]
+                },
+                '003': {
+                    titulo: 'Cortar ponta do inserto',
+                    materiais: [
+                        { nome: 'Insertos de aço', quantidade: 10 },
+                        { nome: 'Lixa 220', quantidade: 1 },
+                        { nome: 'Óleo de corte', quantidade: 1 }
+                    ],
+                    ferramentas: [
+                        'Serra copo 25mm',
+                        'Furadeira',
+                        'Lixadeira orbital'
+                    ]
+                }
+            };
+
             function criarBlocoSetor(setor) {
                 const container = document.getElementById('setores-container');
                 const blocoId = 'setor-' + setor.toLowerCase();
@@ -135,35 +497,93 @@
                 
                 bloco.innerHTML = `
                     <h2>${setor}</h2>
-                    <table class="servico-table">
-                        <thead>
-                            <tr>
-                                <th>Código</th>
-                                <th>Descrição</th>
-                                <th>Ação</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr onclick="abrirModal()">
-                                <td>001</td>
-                                <td>Cortar cabo na ponta</td>
-                                <td class="acao-btn">×</td>
-                            </tr>
-                            <tr onclick="abrirModal()">
-                                <td>002</td>
-                                <td>Fixar parafuso no pino</td>
-                                <td class="acao-btn">×</td>
-                            </tr>
-                            <tr onclick="abrirModal()">
-                                <td>003</td>
-                                <td>Cortar ponta do inserto</td>
-                                <td class="acao-btn">×</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <select class="servico-listbox" onchange="mostrarDetalhesServico(this.value, this)">
+                        <option value="">Selecione um serviço</option>
+                        <option value="001">001 - Cortar cabo na ponta</option>
+                        <option value="002">002 - Fixar parafuso no pino</option>
+                        <option value="003">003 - Cortar ponta do inserto</option>
+                    </select>
                 `;
                 
                 container.appendChild(bloco);
+            }
+
+            function mostrarDetalhesServico(codigo, selectElement) {
+                // Remove detalhes anteriores do mesmo bloco
+                const blocoAtual = selectElement.closest('.bloco');
+                const detalhesAnteriores = blocoAtual.querySelector('.detalhes-servico');
+                if (detalhesAnteriores) {
+                    detalhesAnteriores.remove();
+                }
+
+                if (codigo && servicos[codigo]) {
+                    const servico = servicos[codigo];
+                    const detalhesDiv = document.createElement('div');
+                    detalhesDiv.className = 'detalhes-servico';
+                    
+                    detalhesDiv.innerHTML = `
+                        <h3>${servico.titulo}</h3>
+                        <div class="cabecalho-lista">
+                            <button class="btn-adicionar" onclick="abrirModal('modalMateriais', '${codigo}')">+</button>
+                            <h4>Materiais Necessários:</h4>
+                        </div>
+                        <ul class="lista-materiais">
+                            ${servico.materiais.map(material => `
+                                <li>
+                                    <span>${material.nome} (Qtd: ${material.quantidade})</span>
+                                    <button class="btn-excluir" onclick="excluirItem(this, 'materiais', '${codigo}', '${material.nome}')">×</button>
+                                </li>
+                            `).join('')}
+                        </ul>
+                        <div class="cabecalho-lista">
+                            <button class="btn-adicionar" onclick="abrirModal('modalFerramentas', '${codigo}')">+</button>
+                            <h4>Ferramentas Utilizadas:</h4>
+                        </div>
+                        <ul class="lista-materiais">
+                            ${servico.ferramentas.map(ferramenta => `
+                                <li>
+                                    <span>${ferramenta}</span>
+                                    <button class="btn-excluir" onclick="excluirItem(this, 'ferramentas', '${codigo}', '${ferramenta}')">×</button>
+                                </li>
+                            `).join('')}
+                        </ul>
+                        <div class="campo-formulario">
+                            <label for="parametros-${codigo}">Parâmetros de Inspeção:</label>
+                            <input type="text" id="parametros-${codigo}" placeholder="Digite os parâmetros de inspeção">
+                        </div>
+                        <div class="campo-formulario">
+                            <label for="observacoes-${codigo}">Observações:</label>
+                            <textarea id="observacoes-${codigo}" placeholder="Digite suas observações"></textarea>
+                        </div>
+                        <div class="campo-formulario">
+                            <label for="anexos-${codigo}">Anexos:</label>
+                            <input type="file" id="anexos-${codigo}" multiple>
+                        </div>
+                    `;
+                    
+                    selectElement.parentNode.insertAdjacentElement('afterend', detalhesDiv);
+                }
+            }
+
+            function excluirItem(button, tipo, codigoServico, item) {
+                if (confirm(`Deseja realmente excluir "${item}"?`)) {
+                    const servico = servicos[codigoServico];
+                    const lista = tipo === 'materiais' ? servico.materiais : servico.ferramentas;
+                    
+                    if (tipo === 'materiais') {
+                        const index = lista.findIndex(m => m.nome === item);
+                        if (index > -1) {
+                            lista.splice(index, 1);
+                            button.parentElement.remove();
+                        }
+                    } else {
+                        const index = lista.indexOf(item);
+                        if (index > -1) {
+                            lista.splice(index, 1);
+                            button.parentElement.remove();
+                        }
+                    }
+                }
             }
 
             function selecionarSetor(setor) {
@@ -172,18 +592,73 @@
                 }
             }
 
-            function abrirModal() {
-                document.getElementById('servicoModal').style.display = 'block';
+            let codigoServicoAtual = '';
+
+            function abrirModal(modalId, codigoServico) {
+                document.getElementById(modalId).style.display = 'block';
+                codigoServicoAtual = codigoServico;
             }
 
-            function fecharModal() {
-                document.getElementById('servicoModal').style.display = 'none';
+            function fecharModal(modalId) {
+                document.getElementById(modalId).style.display = 'none';
             }
 
-            // Fechar modal quando clicar fora dele
+            function adicionarItem(tipo) {
+                const selectId = tipo === 'materiais' ? 'listaMateriais' : 'listaFerramentas';
+                const select = document.getElementById(selectId);
+                const item = select.value;
+                const quantidade = tipo === 'materiais' ? document.getElementById('quantidadeMaterial').value : null;
+
+                if (item && codigoServicoAtual) {
+                    const servico = servicos[codigoServicoAtual];
+                    const lista = tipo === 'materiais' ? servico.materiais : servico.ferramentas;
+                    
+                    if (tipo === 'materiais') {
+                        if (!lista.some(m => m.nome === item)) {
+                            lista.push({
+                                nome: item,
+                                quantidade: parseInt(quantidade) || 1
+                            });
+                            const detalhesDiv = document.querySelector('.detalhes-servico');
+                            const listaElement = detalhesDiv.querySelector('.lista-materiais:first-of-type');
+                            
+                            const novoItem = document.createElement('li');
+                            novoItem.innerHTML = `
+                                <span>${item} (Qtd: ${quantidade || 1})</span>
+                                <button class="btn-excluir" onclick="excluirItem(this, '${tipo}', '${codigoServicoAtual}', '${item}')">×</button>
+                            `;
+                            
+                            listaElement.appendChild(novoItem);
+                        }
+                    } else {
+                        if (!lista.includes(item)) {
+                            lista.push(item);
+                            const detalhesDiv = document.querySelector('.detalhes-servico');
+                            const listaElement = detalhesDiv.querySelector('.lista-materiais:last-of-type');
+                            
+                            const novoItem = document.createElement('li');
+                            novoItem.innerHTML = `
+                                <span>${item}</span>
+                                <button class="btn-excluir" onclick="excluirItem(this, '${tipo}', '${codigoServicoAtual}', '${item}')">×</button>
+                            `;
+                            
+                            listaElement.appendChild(novoItem);
+                        }
+                    }
+                    
+                    fecharModal(`modal${tipo.charAt(0).toUpperCase() + tipo.slice(1)}`);
+                }
+            }
+
+            function atualizarTitulo(elemento) {
+                const titulo = elemento.textContent;
+                document.getElementById('h21').textContent = titulo;
+            }
+
+            // Fechar modal quando clicar fora dela
             window.onclick = function(event) {
-                if (event.target == document.getElementById('servicoModal')) {
-                    fecharModal();
+                if (event.target.classList.contains('modal')) {
+                    event.target.style.display = 'none';
                 }
             }
         </script>
