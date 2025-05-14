@@ -293,14 +293,14 @@
                 </div>
                 
                 <div data-v-2e3b20c7="">
-                    <label data-v-2e3b20c7="">Tablet <i data-v-2e3b20c7="" title="Editar Tablet" class="bi bi-gear-fill adicionarItem"></i></label>
+                    <label data-v-2e3b20c7="">Linha Device <i data-v-2e3b20c7="" title="Editar Tablet" class="bi bi-gear-fill adicionarItem"></i></label>
                     <select data-v-2e3b20c7="">
                         <option data-v-2e3b20c7=""></option>
                     </select>
                 </div>
                 
                 <div data-v-2e3b20c7="">
-                    <label data-v-2e3b20c7="">Versão <i data-v-2e3b20c7="" title="Editar Versão" class="bi bi-gear-fill adicionarItem"></i></label>
+                    <label data-v-2e3b20c7="">Modelo Device <i data-v-2e3b20c7="" title="Editar Versão" class="bi bi-gear-fill adicionarItem"></i></label>
                     <select data-v-2e3b20c7="">
                         <option data-v-2e3b20c7=""></option>
                     </select>
@@ -330,13 +330,16 @@
                             <option data-v-2e3b20c7=""></option>
                         </select>
                     </div>
+                    <div data-v-2e3b20c7="">
+                        <label data-v-2e3b20c7="">Especificação técnica <i data-v-2e3b20c7="" title="Editar Tablet" class="bi bi-gear-fill adicionarItem"></i></label>
+                        <select data-v-2e3b20c7="">
+                            <option data-v-2e3b20c7=""></option>
+                        </select>
+                    </div>
+
 
                 </div>
 
-                <div data-v-2e3b20c7="" class="grid">
-                    <label data-v-2e3b20c7="">Especificações </label>
-                    <textarea></textarea>                
-                </div>
                     
                 <div data-v-2e3b20c7="" class="grid">
                     <label data-v-2e3b20c7="">Observações </label>
@@ -363,8 +366,10 @@
             </div>
             
             <div class="card bloco margem">
-            
-                <h3>Setores</h3>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h3>Setores</h3>
+                    
+                </div>
                 <select class="setor-listbox" onchange="selecionarSetor(this.value)">
                     <option value="">Selecione um setor</option>
                     <option value="Montagem">Montagem</option>
@@ -496,7 +501,10 @@
                 bloco.className = 'card bloco margem';
                 
                 bloco.innerHTML = `
-                    <h2>${setor}</h2>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <h2>${setor}</h2>
+                        <button data-v-d90b02e0="" class="bg-sucesso acao-secundaria" style="background-color: var(--cor-sucesso);">Adicionar servico</button>
+                    </div>
                     <select class="servico-listbox" onchange="mostrarDetalhesServico(this.value, this)">
                         <option value="">Selecione um serviço</option>
                         <option value="001">001 - Cortar cabo na ponta</option>
