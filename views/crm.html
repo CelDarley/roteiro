@@ -4,6 +4,7 @@
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1"/>
         <link href="../css/thalamus.css" rel="stylesheet" type="text/css"/>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
         <style>
             body {
                 margin: 0;
@@ -202,13 +203,65 @@
                 font-size: 1.2em;
                 font-weight: bold;
             }
+            .adicionarItem {
+                cursor: pointer;
+                font-size: 14px;
+                margin-left: 5px;
+                color: var(--cor-fonte);
+            }
+            .adicionarItem:hover {
+                color: var(--cor-primaria);
+            }
+            .modal-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin: 10px 0;
+            }
+            .modal-table tr {
+                border-bottom: 1px solid var(--cor-separador);
+            }
+            .modal-table tr:last-child {
+                border-bottom: none;
+            }
+            .modal-table td {
+                padding: 8px;
+                text-align: left;
+            }
+            .modal-table td:last-child {
+                text-align: right;
+            }
+            .modal-table .fa-trash {
+                cursor: pointer;
+                color: var(--cor-erro);
+                margin-left: 10px;
+            }
+            .modal-table .fa-trash:hover {
+                color: var(--cor-erro-escura);
+            }
+            .modal-input {
+                width: 100%;
+                padding: 8px;
+                margin-top: 10px;
+                border: 1px solid var(--cor-separador);
+                border-radius: 4px;
+                box-sizing: border-box;
+            }
         </style>
     </head>
     <body>
         <div class="container margem">
 
             <div id="bl1" class="card bloco margem">
-                <h2>Cadastro </h2>
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <h2 style="margin: 0;">Cadastro</h2>
+                        <i data-v-d90b02e0="" class="fa-solid fa-circle" style="color: var(--cor-sucesso); font-size: 12px;"></i>
+                    </div>
+                    <div data-v-1a0d8160="" style="display: flex; gap: 1rem; align-items: center;">
+                        <span>Ativo</span><i class="fa-solid fa-circle" style="color: var(--cor-sucesso); font-size: 12px;"></i>
+                        <span>Inativo</span><i class="fa-solid fa-circle" style="color: red; font-size: 12px;"></i>
+                    </div>
+                </div><br>
                 <div data-v-2e3b20c7="" class="grid-4">
                     <div data-v-2e3b20c7="">
                         <label data-v-2e3b20c7="">Código do Produto</label>
@@ -244,7 +297,8 @@
                 </div>
                 
                 <div data-v-2e3b20c7="">
-                    <label data-v-2e3b20c7="">Linha <i data-v-2e3b20c7="" title="Editar Linhas" class="bi bi-gear-fill adicionarItem"></i></label>
+                    <label data-v-2e3b20c7="" style="display: inline;">Linha</label>
+                    <i data-v-2e3b20c7="" class="fa-solid fa-gear adicionarItem" title="Adicionar serviço" style="cursor: pointer; font-size: 14px; margin-left: 5px; display: inline;"></i>
                     <select data-v-2e3b20c7="">
                         <option data-v-2e3b20c7="" value="1">Lite</option>
                         <option data-v-2e3b20c7="" value="2">Hard</option>
@@ -253,7 +307,8 @@
                 </div>
                 
                 <div data-v-2e3b20c7="">
-                    <label data-v-2e3b20c7="">Modelo <i data-v-2e3b20c7="" title="Editar Modelos" class="bi bi-gear-fill adicionarItem"></i></label>
+                    <label data-v-2e3b20c7="" style="display: inline;">Modelo</label>
+                    <i data-v-2e3b20c7="" class="fa-solid fa-gear adicionarItem" title="Adicionar serviço" style="cursor: pointer; font-size: 14px; margin-left: 5px; display: inline;"></i>
                     <select data-v-2e3b20c7="">
                         <option data-v-2e3b20c7="" value="1">Termic</option>
                         <option data-v-2e3b20c7="" value="2">Impact</option>
@@ -269,7 +324,8 @@
                 </div>
                 
                 <div data-v-2e3b20c7="">
-                    <label data-v-2e3b20c7="">Fixação <i data-v-2e3b20c7="" title="Editar Fixações" class="bi bi-gear-fill adicionarItem"></i></label>
+                    <label data-v-2e3b20c7="" style="display: inline;">Fixação</label>
+                    <i data-v-2e3b20c7="" class="fa-solid fa-gear adicionarItem" title="Adicionar serviço" style="cursor: pointer; font-size: 14px; margin-left: 5px; display: inline;"></i>
                     <select data-v-2e3b20c7="">
                         <option data-v-2e3b20c7="" value="1">Parafusada</option>
                         <option data-v-2e3b20c7="" value="2">Magnética</option>
@@ -283,7 +339,8 @@
                <div data-v-2e3b20c7="" class="grid-4">
 
                 <div data-v-2e3b20c7="">
-                    <label data-v-2e3b20c7="">Tamanho <i data-v-2e3b20c7="" title="Editar Tamanhos" class="bi bi-gear-fill adicionarItem"></i></label>
+                    <label data-v-2e3b20c7="" style="display: inline;">Tamanho</label>
+                    <i data-v-2e3b20c7="" class="fa-solid fa-gear adicionarItem" title="Adicionar serviço" style="cursor: pointer; font-size: 14px; margin-left: 5px; display: inline;"></i>
                     <select data-v-2e3b20c7="">
                         <option data-v-2e3b20c7="" value="1">06 a 07</option>
                         <option data-v-2e3b20c7="" value="2">08 a 09</option>
@@ -293,14 +350,16 @@
                 </div>
                 
                 <div data-v-2e3b20c7="">
-                    <label data-v-2e3b20c7="">Linha Device <i data-v-2e3b20c7="" title="Editar Tablet" class="bi bi-gear-fill adicionarItem"></i></label>
+                    <label data-v-2e3b20c7="" style="display: inline;">Linha Device</label>
+                    <i data-v-2e3b20c7="" class="fa-solid fa-gear adicionarItem" title="Adicionar serviço" style="cursor: pointer; font-size: 14px; margin-left: 5px; display: inline;"></i>
                     <select data-v-2e3b20c7="">
                         <option data-v-2e3b20c7=""></option>
                     </select>
                 </div>
                 
                 <div data-v-2e3b20c7="">
-                    <label data-v-2e3b20c7="">Modelo Device <i data-v-2e3b20c7="" title="Editar Versão" class="bi bi-gear-fill adicionarItem"></i></label>
+                    <label data-v-2e3b20c7="" style="display: inline;">Modelo Device</label>
+                    <i data-v-2e3b20c7="" class="fa-solid fa-gear adicionarItem" title="Adicionar serviço" style="cursor: pointer; font-size: 14px; margin-left: 5px; display: inline;"></i>
                     <select data-v-2e3b20c7="">
                         <option data-v-2e3b20c7=""></option>
                     </select>
@@ -319,19 +378,22 @@
                 
                 <div data-v-2e3b20c7="" class="grid-4">
                     <div data-v-2e3b20c7="">
-                        <label data-v-2e3b20c7="">Cor <i data-v-2e3b20c7="" title="Editar Tablet" class="bi bi-gear-fill adicionarItem"></i></label>
+                        <label data-v-2e3b20c7="" style="display: inline;">Cor</label>
+                        <i data-v-2e3b20c7="" class="fa-solid fa-gear adicionarItem" title="Adicionar serviço" style="cursor: pointer; font-size: 14px; margin-left: 5px; display: inline;"></i>
                         <select data-v-2e3b20c7="">
                             <option data-v-2e3b20c7=""></option>
                         </select>
                     </div>
                     <div data-v-2e3b20c7="">
-                        <label data-v-2e3b20c7="">Versao modelo <i data-v-2e3b20c7="" title="Editar Tablet" class="bi bi-gear-fill adicionarItem"></i></label>
+                        <label data-v-2e3b20c7="" style="display: inline;">Versao modelo</label>
+                        <i data-v-2e3b20c7="" class="fa-solid fa-gear adicionarItem" title="Adicionar serviço" style="cursor: pointer; font-size: 14px; margin-left: 5px; display: inline;"></i>
                         <select data-v-2e3b20c7="">
                             <option data-v-2e3b20c7=""></option>
                         </select>
                     </div>
                     <div data-v-2e3b20c7="">
-                        <label data-v-2e3b20c7="">Especificação técnica <i data-v-2e3b20c7="" title="Editar Tablet" class="bi bi-gear-fill adicionarItem"></i></label>
+                        <label data-v-2e3b20c7="" style="display: inline;">Especificação técnica</label>
+                        <i data-v-2e3b20c7="" class="fa-solid fa-gear adicionarItem" title="Adicionar serviço" style="cursor: pointer; font-size: 14px; margin-left: 5px; display: inline;"></i>
                         <select data-v-2e3b20c7="">
                             <option data-v-2e3b20c7=""></option>
                         </select>
@@ -351,21 +413,17 @@
             
             
             <div id="bl2" id="estrutura" class="card bloco margem">
+                <h3>Estrutura</h3><br>
                 <h2>CST0410031 - Case Magnetica XPTO</h2>
                 <br>
                 <div style="margin-left: 20px;" id="lista1">
-                    <h3 onclick="atualizarTitulo(this)">RES030007 - BOTAO POWER VOLUME M7</h3>
-                    <h3 onclick="atualizarTitulo(this)">UDO030011 - Base Magnetica PRO + Fios 0,32MM</h3>
-                    <h3 onclick="atualizarTitulo(this)">PRE030147 - Kit Parafusos 3 X 10 PAN PH 1 - 8 UN Preto</h3>
+                    <h3 onclick="">RES030007 - BOTAO POWER VOLUME M7</h3>
+                    <h3 onclick="">UDO030011 - Base Magnetica PRO + Fios 0,32MM</h3>
+                    <h3 onclick="">PRE030147 - Kit Parafusos 3 X 10 PAN PH 1 - 8 UN Preto</h3>
                 </div>
             </div>
             
-            
-            <div id="bl3" class="card bloco margem">
-                <h2 id="h21">CST0410031 - Case Magnetica XPTO</h2>
-            </div>
-            
-            <div class="card bloco margem">
+             <div class="card bloco margem">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <h3>Setores</h3>
                     
@@ -444,6 +502,333 @@
             </div>
         </div>
 
+        <!-- Modal de Linhas -->
+        <div id="modalLinhas" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Gerenciar Linhas</h3>
+                    <button class="btn-fechar" onclick="fecharModal('modalLinhas')">×</button>
+                </div>
+                <div class="modal-body">
+                    <div data-v-68ae7a00="" class="margem">
+                        <div data-v-68ae7a00="" class="alinha-centro">
+                            <h2 data-v-68ae7a00="">Linha</h2>
+                        </div>
+                        <table class="modal-table">
+                            <tbody id="lista-linhas">
+                                <tr>
+                                    <td>Lite</td>
+                                    <td><i class="fa-solid fa-trash" title="Excluir Item" onclick="excluirLinha(this)"></i></td>
+                                </tr>
+                                <tr>
+                                    <td>Hard</td>
+                                    <td><i class="fa-solid fa-trash" title="Excluir Item" onclick="excluirLinha(this)"></i></td>
+                                </tr>
+                                <tr>
+                                    <td>N/A</td>
+                                    <td><i class="fa-solid fa-trash" title="Excluir Item" onclick="excluirLinha(this)"></i></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <input data-v-68ae7a00="" type="text" id="nova-linha" placeholder="Adicionar Novo Item" onkeypress="adicionarLinha(event)">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal de Modelos -->
+        <div id="modalModelos" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Gerenciar Modelos</h3>
+                    <button class="btn-fechar" onclick="fecharModal('modalModelos')">×</button>
+                </div>
+                <div class="modal-body">
+                    <div data-v-68ae7a00="" class="margem">
+                        <div data-v-68ae7a00="" class="alinha-centro">
+                            <h2 data-v-68ae7a00="">Modelo</h2>
+                        </div>
+                        <table class="modal-table">
+                            <tbody id="lista-modelos">
+                                <tr>
+                                    <td>Termic</td>
+                                    <td><i class="fa-solid fa-trash" title="Excluir Item" onclick="excluirModelo(this)"></i></td>
+                                </tr>
+                                <tr>
+                                    <td>Impact</td>
+                                    <td><i class="fa-solid fa-trash" title="Excluir Item" onclick="excluirModelo(this)"></i></td>
+                                </tr>
+                                <tr>
+                                    <td>Extreme</td>
+                                    <td><i class="fa-solid fa-trash" title="Excluir Item" onclick="excluirModelo(this)"></i></td>
+                                </tr>
+                                <tr>
+                                    <td>Explosion</td>
+                                    <td><i class="fa-solid fa-trash" title="Excluir Item" onclick="excluirModelo(this)"></i></td>
+                                </tr>
+                                <tr>
+                                    <td>Vision</td>
+                                    <td><i class="fa-solid fa-trash" title="Excluir Item" onclick="excluirModelo(this)"></i></td>
+                                </tr>
+                                <tr>
+                                    <td>Manipulo</td>
+                                    <td><i class="fa-solid fa-trash" title="Excluir Item" onclick="excluirModelo(this)"></i></td>
+                                </tr>
+                                <tr>
+                                    <td>N/A</td>
+                                    <td><i class="fa-solid fa-trash" title="Excluir Item" onclick="excluirModelo(this)"></i></td>
+                                </tr>
+                                <tr>
+                                    <td>Automotiva</td>
+                                    <td><i class="fa-solid fa-trash" title="Excluir Item" onclick="excluirModelo(this)"></i></td>
+                                </tr>
+                                <tr>
+                                    <td>Indoor</td>
+                                    <td><i class="fa-solid fa-trash" title="Excluir Item" onclick="excluirModelo(this)"></i></td>
+                                </tr>
+                                <tr>
+                                    <td>5 Pinos</td>
+                                    <td><i class="fa-solid fa-trash" title="Excluir Item" onclick="excluirModelo(this)"></i></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <input data-v-68ae7a00="" type="text" id="novo-modelo" placeholder="Adicionar Novo Item" onkeypress="adicionarModelo(event)">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal de Fixações -->
+        <div id="modalFixacoes" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Gerenciar Fixações</h3>
+                    <button class="btn-fechar" onclick="fecharModal('modalFixacoes')">×</button>
+                </div>
+                <div class="modal-body">
+                    <div data-v-68ae7a00="" class="margem">
+                        <div data-v-68ae7a00="" class="alinha-centro">
+                            <h2 data-v-68ae7a00="">Fixação</h2>
+                        </div>
+                        <table class="modal-table">
+                            <tbody id="lista-fixacoes">
+                                <tr>
+                                    <td>Parafusada</td>
+                                    <td><i class="fa-solid fa-trash" title="Excluir Item" onclick="excluirFixacao(this)"></i></td>
+                                </tr>
+                                <tr>
+                                    <td>Magnética</td>
+                                    <td><i class="fa-solid fa-trash" title="Excluir Item" onclick="excluirFixacao(this)"></i></td>
+                                </tr>
+                                <tr>
+                                    <td>Sem Fixação</td>
+                                    <td><i class="fa-solid fa-trash" title="Excluir Item" onclick="excluirFixacao(this)"></i></td>
+                                </tr>
+                                <tr>
+                                    <td>Adesivada</td>
+                                    <td><i class="fa-solid fa-trash" title="Excluir Item" onclick="excluirFixacao(this)"></i></td>
+                                </tr>
+                                <tr>
+                                    <td>Esfera</td>
+                                    <td><i class="fa-solid fa-trash" title="Excluir Item" onclick="excluirFixacao(this)"></i></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <input data-v-68ae7a00="" type="text" id="nova-fixacao" placeholder="Adicionar Novo Item" onkeypress="adicionarFixacao(event)">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal de Tamanhos -->
+        <div id="modalTamanhos" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Gerenciar Tamanhos</h3>
+                    <button class="btn-fechar" onclick="fecharModal('modalTamanhos')">×</button>
+                </div>
+                <div class="modal-body">
+                    <div data-v-68ae7a00="" class="margem">
+                        <div data-v-68ae7a00="" class="alinha-centro">
+                            <h2 data-v-68ae7a00="">Tamanho</h2>
+                        </div>
+                        <table class="modal-table">
+                            <tbody id="lista-tamanhos">
+                                <tr>
+                                    <td>06 a 07</td>
+                                    <td><i class="fa-solid fa-trash" title="Excluir Item" onclick="excluirTamanho(this)"></i></td>
+                                </tr>
+                                <tr>
+                                    <td>08 a 09</td>
+                                    <td><i class="fa-solid fa-trash" title="Excluir Item" onclick="excluirTamanho(this)"></i></td>
+                                </tr>
+                                <tr>
+                                    <td>10 a 11</td>
+                                    <td><i class="fa-solid fa-trash" title="Excluir Item" onclick="excluirTamanho(this)"></i></td>
+                                </tr>
+                                <tr>
+                                    <td>12 a 13</td>
+                                    <td><i class="fa-solid fa-trash" title="Excluir Item" onclick="excluirTamanho(this)"></i></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <input data-v-68ae7a00="" type="text" id="novo-tamanho" placeholder="Adicionar Novo Item" onkeypress="adicionarTamanho(event)">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal de Linha Device -->
+        <div id="modalLinhaDevice" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Gerenciar Linha Device</h3>
+                    <button class="btn-fechar" onclick="fecharModal('modalLinhaDevice')">×</button>
+                </div>
+                <div class="modal-body">
+                    <div data-v-68ae7a00="" class="margem">
+                        <div data-v-68ae7a00="" class="alinha-centro">
+                            <h2 data-v-68ae7a00="">Linha Device</h2>
+                        </div>
+                        <table class="modal-table">
+                            <tbody id="lista-linha-device">
+                                <tr>
+                                    <td>iPad</td>
+                                    <td><i class="fa-solid fa-trash" title="Excluir Item" onclick="excluirLinhaDevice(this)"></i></td>
+                                </tr>
+                                <tr>
+                                    <td>Samsung</td>
+                                    <td><i class="fa-solid fa-trash" title="Excluir Item" onclick="excluirLinhaDevice(this)"></i></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <input data-v-68ae7a00="" type="text" id="nova-linha-device" placeholder="Adicionar Novo Item" onkeypress="adicionarLinhaDevice(event)">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal de Modelo Device -->
+        <div id="modalModeloDevice" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Gerenciar Modelo Device</h3>
+                    <button class="btn-fechar" onclick="fecharModal('modalModeloDevice')">×</button>
+                </div>
+                <div class="modal-body">
+                    <div data-v-68ae7a00="" class="margem">
+                        <div data-v-68ae7a00="" class="alinha-centro">
+                            <h2 data-v-68ae7a00="">Modelo Device</h2>
+                        </div>
+                        <table class="modal-table">
+                            <tbody id="lista-modelo-device">
+                                <tr>
+                                    <td>iPad Pro</td>
+                                    <td><i class="fa-solid fa-trash" title="Excluir Item" onclick="excluirModeloDevice(this)"></i></td>
+                                </tr>
+                                <tr>
+                                    <td>Galaxy Tab</td>
+                                    <td><i class="fa-solid fa-trash" title="Excluir Item" onclick="excluirModeloDevice(this)"></i></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <input data-v-68ae7a00="" type="text" id="novo-modelo-device" placeholder="Adicionar Novo Item" onkeypress="adicionarModeloDevice(event)">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal de Cores -->
+        <div id="modalCores" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Gerenciar Cores</h3>
+                    <button class="btn-fechar" onclick="fecharModal('modalCores')">×</button>
+                </div>
+                <div class="modal-body">
+                    <div data-v-68ae7a00="" class="margem">
+                        <div data-v-68ae7a00="" class="alinha-centro">
+                            <h2 data-v-68ae7a00="">Cor</h2>
+                        </div>
+                        <table class="modal-table">
+                            <tbody id="lista-cores">
+                                <tr>
+                                    <td>Preto</td>
+                                    <td><i class="fa-solid fa-trash" title="Excluir Item" onclick="excluirCor(this)"></i></td>
+                                </tr>
+                                <tr>
+                                    <td>Branco</td>
+                                    <td><i class="fa-solid fa-trash" title="Excluir Item" onclick="excluirCor(this)"></i></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <input data-v-68ae7a00="" type="text" id="nova-cor" placeholder="Adicionar Novo Item" onkeypress="adicionarCor(event)">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal de Versão Modelo -->
+        <div id="modalVersaoModelo" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Gerenciar Versão Modelo</h3>
+                    <button class="btn-fechar" onclick="fecharModal('modalVersaoModelo')">×</button>
+                </div>
+                <div class="modal-body">
+                    <div data-v-68ae7a00="" class="margem">
+                        <div data-v-68ae7a00="" class="alinha-centro">
+                            <h2 data-v-68ae7a00="">Versão Modelo</h2>
+                        </div>
+                        <table class="modal-table">
+                            <tbody id="lista-versao-modelo">
+                                <tr>
+                                    <td>V1.0</td>
+                                    <td><i class="fa-solid fa-trash" title="Excluir Item" onclick="excluirVersaoModelo(this)"></i></td>
+                                </tr>
+                                <tr>
+                                    <td>V2.0</td>
+                                    <td><i class="fa-solid fa-trash" title="Excluir Item" onclick="excluirVersaoModelo(this)"></i></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <input data-v-68ae7a00="" type="text" id="nova-versao-modelo" placeholder="Adicionar Novo Item" onkeypress="adicionarVersaoModelo(event)">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal de Especificação Técnica -->
+        <div id="modalEspecificacaoTecnica" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Gerenciar Especificação Técnica</h3>
+                    <button class="btn-fechar" onclick="fecharModal('modalEspecificacaoTecnica')">×</button>
+                </div>
+                <div class="modal-body">
+                    <div data-v-68ae7a00="" class="margem">
+                        <div data-v-68ae7a00="" class="alinha-centro">
+                            <h2 data-v-68ae7a00="">Especificação Técnica</h2>
+                        </div>
+                        <table class="modal-table">
+                            <tbody id="lista-especificacao-tecnica">
+                                <tr>
+                                    <td>IP67</td>
+                                    <td><i class="fa-solid fa-trash" title="Excluir Item" onclick="excluirEspecificacaoTecnica(this)"></i></td>
+                                </tr>
+                                <tr>
+                                    <td>IP68</td>
+                                    <td><i class="fa-solid fa-trash" title="Excluir Item" onclick="excluirEspecificacaoTecnica(this)"></i></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <input data-v-68ae7a00="" type="text" id="nova-especificacao-tecnica" placeholder="Adicionar Novo Item" onkeypress="adicionarEspecificacaoTecnica(event)">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
         <script>
             const servicos = {
                 '001': {
@@ -503,7 +888,7 @@
                 bloco.innerHTML = `
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <h2>${setor}</h2>
-                        <button data-v-d90b02e0="" class="bg-sucesso acao-secundaria" style="background-color: var(--cor-sucesso);">Adicionar servico</button>
+                        <button data-v-d90b02e0="" class="bg-sucesso acao-primaria" style="background-color: var(--cor-sucesso);">Adicionar servico</button>
                     </div>
                     <select class="servico-listbox" onchange="mostrarDetalhesServico(this.value, this)">
                         <option value="">Selecione um serviço</option>
@@ -667,6 +1052,282 @@
             window.onclick = function(event) {
                 if (event.target.classList.contains('modal')) {
                     event.target.style.display = 'none';
+                }
+            }
+
+            function excluirLinha(elemento) {
+                if (confirm('Deseja realmente excluir esta linha?')) {
+                    elemento.closest('tr').remove();
+                }
+            }
+
+            function adicionarLinha(event) {
+                if (event.key === 'Enter') {
+                    const input = document.getElementById('nova-linha');
+                    const valor = input.value.trim();
+                    
+                    if (valor) {
+                        const lista = document.getElementById('lista-linhas');
+                        const novaLinha = document.createElement('tr');
+                        novaLinha.innerHTML = `
+                            <td>${valor}</td>
+                            <td><i class="fa-solid fa-trash" title="Excluir Item" onclick="excluirLinha(this)"></i></td>
+                        `;
+                        lista.appendChild(novaLinha);
+                        input.value = '';
+                    }
+                }
+            }
+
+            // Adicionar eventos de clique aos ícones de engrenagem
+            $(document).ready(function() {
+                // Ícone de Linha
+                $('label:contains("Linha")').next('.fa-gear').on('click', function() {
+                    $('#modalLinhas').show();
+                });
+
+                // Ícone de Modelo
+                $('label:contains("Modelo")').next('.fa-gear').on('click', function() {
+                    $('#modalModelos').show();
+                });
+
+                // Ícone de Fixação
+                $('label:contains("Fixação")').next('.fa-gear').on('click', function() {
+                    $('#modalFixacoes').show();
+                });
+
+                // Fechar modais quando clicar no X
+                $('.btn-fechar').on('click', function() {
+                    $(this).closest('.modal').hide();
+                });
+
+                // Fechar modais quando clicar fora
+                $('.modal').on('click', function(e) {
+                    if ($(e.target).hasClass('modal')) {
+                        $(this).hide();
+                    }
+                });
+
+                // Ícone de Tamanho
+                $('label:contains("Tamanho")').next('.fa-gear').on('click', function() {
+                    $('#modalTamanhos').show();
+                });
+
+                // Ícone de Linha Device
+                $('label:contains("Linha Device")').next('.fa-gear').on('click', function() {
+                    $('#modalLinhaDevice').show();
+                });
+
+                // Ícone de Modelo Device
+                $('label:contains("Modelo Device")').next('.fa-gear').on('click', function() {
+                    $('#modalModeloDevice').show();
+                });
+
+                // Ícone de Cor
+                $('label:contains("Cor")').next('.fa-gear').on('click', function() {
+                    $('#modalCores').show();
+                });
+
+                // Ícone de Versão Modelo
+                $('label:contains("Versao modelo")').next('.fa-gear').on('click', function() {
+                    $('#modalVersaoModelo').show();
+                });
+
+                // Ícone de Especificação Técnica
+                $('label:contains("Especificação técnica")').next('.fa-gear').on('click', function() {
+                    $('#modalEspecificacaoTecnica').show();
+                });
+            });
+
+            function excluirModelo(elemento) {
+                if (confirm('Deseja realmente excluir este modelo?')) {
+                    elemento.closest('tr').remove();
+                }
+            }
+
+            function adicionarModelo(event) {
+                if (event.key === 'Enter') {
+                    const input = document.getElementById('novo-modelo');
+                    const valor = input.value.trim();
+                    
+                    if (valor) {
+                        const lista = document.getElementById('lista-modelos');
+                        const novaLinha = document.createElement('tr');
+                        novaLinha.innerHTML = `
+                            <td>${valor}</td>
+                            <td><i class="fa-solid fa-trash" title="Excluir Item" onclick="excluirModelo(this)"></i></td>
+                        `;
+                        lista.appendChild(novaLinha);
+                        input.value = '';
+                    }
+                }
+            }
+
+            function excluirFixacao(elemento) {
+                if (confirm('Deseja realmente excluir esta fixação?')) {
+                    elemento.closest('tr').remove();
+                }
+            }
+
+            function adicionarFixacao(event) {
+                if (event.key === 'Enter') {
+                    const input = document.getElementById('nova-fixacao');
+                    const valor = input.value.trim();
+                    
+                    if (valor) {
+                        const lista = document.getElementById('lista-fixacoes');
+                        const novaLinha = document.createElement('tr');
+                        novaLinha.innerHTML = `
+                            <td>${valor}</td>
+                            <td><i class="fa-solid fa-trash" title="Excluir Item" onclick="excluirFixacao(this)"></i></td>
+                        `;
+                        lista.appendChild(novaLinha);
+                        input.value = '';
+                    }
+                }
+            }
+
+            function excluirTamanho(elemento) {
+                if (confirm('Deseja realmente excluir este tamanho?')) {
+                    elemento.closest('tr').remove();
+                }
+            }
+
+            function adicionarTamanho(event) {
+                if (event.key === 'Enter') {
+                    const input = document.getElementById('novo-tamanho');
+                    const valor = input.value.trim();
+                    
+                    if (valor) {
+                        const lista = document.getElementById('lista-tamanhos');
+                        const novaLinha = document.createElement('tr');
+                        novaLinha.innerHTML = `
+                            <td>${valor}</td>
+                            <td><i class="fa-solid fa-trash" title="Excluir Item" onclick="excluirTamanho(this)"></i></td>
+                        `;
+                        lista.appendChild(novaLinha);
+                        input.value = '';
+                    }
+                }
+            }
+
+            function excluirLinhaDevice(elemento) {
+                if (confirm('Deseja realmente excluir esta linha device?')) {
+                    elemento.closest('tr').remove();
+                }
+            }
+
+            function adicionarLinhaDevice(event) {
+                if (event.key === 'Enter') {
+                    const input = document.getElementById('nova-linha-device');
+                    const valor = input.value.trim();
+                    
+                    if (valor) {
+                        const lista = document.getElementById('lista-linha-device');
+                        const novaLinha = document.createElement('tr');
+                        novaLinha.innerHTML = `
+                            <td>${valor}</td>
+                            <td><i class="fa-solid fa-trash" title="Excluir Item" onclick="excluirLinhaDevice(this)"></i></td>
+                        `;
+                        lista.appendChild(novaLinha);
+                        input.value = '';
+                    }
+                }
+            }
+
+            function excluirModeloDevice(elemento) {
+                if (confirm('Deseja realmente excluir este modelo device?')) {
+                    elemento.closest('tr').remove();
+                }
+            }
+
+            function adicionarModeloDevice(event) {
+                if (event.key === 'Enter') {
+                    const input = document.getElementById('novo-modelo-device');
+                    const valor = input.value.trim();
+                    
+                    if (valor) {
+                        const lista = document.getElementById('lista-modelo-device');
+                        const novaLinha = document.createElement('tr');
+                        novaLinha.innerHTML = `
+                            <td>${valor}</td>
+                            <td><i class="fa-solid fa-trash" title="Excluir Item" onclick="excluirModeloDevice(this)"></i></td>
+                        `;
+                        lista.appendChild(novaLinha);
+                        input.value = '';
+                    }
+                }
+            }
+
+            function excluirCor(elemento) {
+                if (confirm('Deseja realmente excluir esta cor?')) {
+                    elemento.closest('tr').remove();
+                }
+            }
+
+            function adicionarCor(event) {
+                if (event.key === 'Enter') {
+                    const input = document.getElementById('nova-cor');
+                    const valor = input.value.trim();
+                    
+                    if (valor) {
+                        const lista = document.getElementById('lista-cores');
+                        const novaLinha = document.createElement('tr');
+                        novaLinha.innerHTML = `
+                            <td>${valor}</td>
+                            <td><i class="fa-solid fa-trash" title="Excluir Item" onclick="excluirCor(this)"></i></td>
+                        `;
+                        lista.appendChild(novaLinha);
+                        input.value = '';
+                    }
+                }
+            }
+
+            function excluirVersaoModelo(elemento) {
+                if (confirm('Deseja realmente excluir esta versão?')) {
+                    elemento.closest('tr').remove();
+                }
+            }
+
+            function adicionarVersaoModelo(event) {
+                if (event.key === 'Enter') {
+                    const input = document.getElementById('nova-versao-modelo');
+                    const valor = input.value.trim();
+                    
+                    if (valor) {
+                        const lista = document.getElementById('lista-versao-modelo');
+                        const novaLinha = document.createElement('tr');
+                        novaLinha.innerHTML = `
+                            <td>${valor}</td>
+                            <td><i class="fa-solid fa-trash" title="Excluir Item" onclick="excluirVersaoModelo(this)"></i></td>
+                        `;
+                        lista.appendChild(novaLinha);
+                        input.value = '';
+                    }
+                }
+            }
+
+            function excluirEspecificacaoTecnica(elemento) {
+                if (confirm('Deseja realmente excluir esta especificação técnica?')) {
+                    elemento.closest('tr').remove();
+                }
+            }
+
+            function adicionarEspecificacaoTecnica(event) {
+                if (event.key === 'Enter') {
+                    const input = document.getElementById('nova-especificacao-tecnica');
+                    const valor = input.value.trim();
+                    
+                    if (valor) {
+                        const lista = document.getElementById('lista-especificacao-tecnica');
+                        const novaLinha = document.createElement('tr');
+                        novaLinha.innerHTML = `
+                            <td>${valor}</td>
+                            <td><i class="fa-solid fa-trash" title="Excluir Item" onclick="excluirEspecificacaoTecnica(this)"></i></td>
+                        `;
+                        lista.appendChild(novaLinha);
+                        input.value = '';
+                    }
                 }
             }
         </script>
